@@ -1,0 +1,32 @@
+extends ../layoutCoordinadores
+block page
+    div 
+        div.mt-3
+            h4 Editar usuario
+            .row 
+                .col-6  
+                    form(action="/home/editarUsuario/"+usuario.id_usuario+"?_method=put", method="post")
+                        div.mb-3
+                            Label.form-label Nombres:
+                            input.form-control(type="text", name="nombre", value= usuario.nombre_usuario)
+                        div.mb-3
+                            Label.form-label Apellidos:
+                            input.form-control(type="text", name="apellido" value= usuario.apellido_usuario) 
+                        div.mb-3
+                            Label.form-label Email:
+                            input.form-control(type="email", name="email", placeholder="name@example.com" value= usuario.email_usuario)
+                        div.mb-3
+                            Label.form-label Seleccione el tipo de usuario:
+                            select.form-select(name="id_rol")
+                                each rol in roles
+                                    option(value=rol.id_rol, selected= rol.id_rol == usuario.id_rol) #{rol.descripcion_rol}
+                        div.mb-3
+                            input.btn.btn-success(type="submit", value="Confirmar")
+                    if mensaje && mensaje.length > 0
+                        div(class="mt-3")
+                            if mensaje[0].esError
+                                div(class="alert alert-danger" role="alert")
+                                    span #{mensaje[0].mensaje}
+                            else 
+                                div(class="alert alert-success" role="alert")
+                                    span #{mensaje[0].mensaje}

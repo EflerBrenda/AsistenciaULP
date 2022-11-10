@@ -1,0 +1,39 @@
+extends ../layoutProfesores
+block page
+    div 
+        div.mt-5
+            h3.mt-3 Alumnos que requieren registro:
+            table(class= "table table-striped")
+                tr 
+                    th Nombre
+                    th Apellido
+                    th email
+                    th
+                    th
+                each alumno in alumnosARegistrar
+                    tr
+                        td #{alumno.usuario.nombre_usuario}
+                        td #{alumno.usuario.apellido_usuario}
+                        td #{alumno.usuario.email_usuario}
+                        td
+                            form(action="/home/validaAlumnoMateria/"+alumno.id_cursadomateria , method="post") 
+                                input.btn.btn-success.btn-sm(type="submit", value="Registrar alumno")
+                        td
+                            form(action="/home/rechazoAlumnoMateria/"+alumno.usuario.id_usuario +"/"+ alumno.id_materia+"?_method=delete", method="post") 
+                                input.btn.btn-danger.btn-sm(type="submit", value="No registrar alumno")
+            if alumnosARegistrar.length == 0
+                p.text-center No hay alumnos para registrar.
+        div.mt-5
+            h3.mt-3 Alumnos registrados:
+            table(class= "table table-striped")
+                tr 
+                    th Nombre
+                    th Apellido
+                    th email
+                each alumno in alumnosRegistrados
+                    tr
+                        td #{alumno.usuario.nombre_usuario}
+                        td #{alumno.usuario.apellido_usuario}
+                        td #{alumno.usuario.email_usuario}
+            if alumnosRegistrados.length == 0
+                p.text-center No hay alumnos registrados.

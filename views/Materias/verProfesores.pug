@@ -1,0 +1,21 @@
+extends ../layoutCoordinadores
+block page
+    div 
+        div.mt-5 
+            h3.mt-3 Profesores asignados a #{materia.nombre_materia}
+            table(class= "table table-striped")
+                tr 
+                    th Nombres 
+                    th Apellidos
+                    th Email
+                    th
+                each profesorAsignado in profesoresAsignados
+                    tr
+                        td #{profesorAsignado.usuario.nombre_usuario}
+                        td #{profesorAsignado.usuario.apellido_usuario}
+                        td #{profesorAsignado.usuario.email_usuario}
+                        td
+                            a.btn.btn-outline-primary.btn-sm(href="/home/asignarProfesor/"+profesorAsignado.usuario.id_usuario) Editar asignacion de materia
+            if profesoresAsignados.length == 0
+                p.text-center No existen profesores asignados
+        

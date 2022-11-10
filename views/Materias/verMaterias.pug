@@ -1,0 +1,30 @@
+extends ../layoutCoordinadores
+block page
+    div 
+        div
+            h3.mt-3 Materias
+            table(class= "table table-striped")
+                tr 
+                    th Materia 
+                    th Fecha inicio
+                    th Fecha fin
+                    th 
+                    th
+                    th
+                    th
+                each materia in materias
+                    tr
+                        td #{materia.nombre_materia}
+                        td #{materia.fecha_inicio_cursada}
+                        td #{materia.fecha_fin_cursada}
+                        td
+                            a.btn.btn-outline-warning.btn-sm(href="/home/editarMateria/"+materia.id_materia) Modificar materia
+                        td
+                            a.btn.btn-outline-primary.btn-sm(href="/home/ProfesoresAsignados/"+materia.id_materia) Ver profesores asignados
+                        td
+                            a.btn.btn-outline-secondary.btn-sm(href="/home/verHorarios/"+materia.id_materia) Ver horarios
+                        td
+                            form(action="/home/borrarMateria/"+materia.id_materia+"?_method=delete", method="post") 
+                                input.btn.btn-outline-danger.btn-sm(type="submit", value="Borrar")
+            if materias.length == 0
+                p.text-center No existen materias

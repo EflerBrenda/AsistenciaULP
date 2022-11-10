@@ -1,0 +1,32 @@
+extends ../layoutCoordinadores
+block page
+    div 
+        div.mt-5
+            h3.mt-3 Asignar materias a #{profesor.nombre_usuario} #{profesor.apellido_usuario}
+            table(class= "table table-striped")
+                tr 
+                    th Nombre materia
+                    th
+                each materiaSinAsignar in materiasSinAsignar
+                    tr
+                        td #{materiaSinAsignar.nombre_materia}
+                        td
+                            form(action="/home/asignarProfesor/"+profesor.id_usuario+"/"+materiaSinAsignar.id_materia, method="post") 
+                                input.btn.btn-outline-success.btn-sm(type="submit", value="Asignar materia")
+            if materiasSinAsignar.length == 0
+                p.text-center No existen materias para asignar
+        div.mt-5 
+            h3.mt-3 Materias ya asignadas
+            table(class= "table table-striped")
+                tr 
+                    th Nombre materia
+                    th
+                each materiaAsignada in materiasAsignadas
+                    tr
+                        td #{materiaAsignada.materia.nombre_materia}
+                        td
+                            form(action="/home/eliminarMateriaAsignada/"+materiaAsignada.id_dictadoMateria+"?_method=delete", method="post") 
+                                input.btn.btn-outline-danger.btn-sm(type="submit", value="Eliminar asignacion")
+            if materiasAsignadas.length == 0
+                p.text-center No existen materias asignadas.
+        

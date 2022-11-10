@@ -1,0 +1,445 @@
+const { sequelize, Sequelize } = require('../models');
+const bcrypt = require("bcrypt");
+const moment = require("moment");
+const validation = require("../utils/validationMethods");
+const usuarios = require('../models').usuarios;
+const roles = require('../models').roles;
+const materias = require('../models').materias;
+const dictadoMateria = require('../models').dictadoMateria;
+
+//USUARIOS
+
+exports.nuevoUsuario = async function (req, res) {
+    let body = req.body;
+    let usuario = await usuarios.findOne({ where: { email_usuario: body.email } });
+    if (!usuario) {
+        if (!validation.isOnlyText(body.nombre)) {
+            return mensajeRegistroUsuario(req, res, { mensaje: "El campo nombre es incorrecto.", esError: true });
+        }
+        if (!validation.isOnlyText(body.apellido)) {
+            return mensajeRegistroUsuario(req, res, { mensaje: "El campo apellido es incorrecto.", esError: true });
+        }
+        if (!validation.isNumber(body.id_rol)) {
+            return mensajeRegistroUsuario(req, res, { mensaje: "El rol es incorrecto.", esError: true });
+        }
+        if (!validation.isEmail(body.email)) {
+            return mensajeRegistroUsuario(req, res, { mensaje: "El campo email es incorrecto.", esError: true });
+        }
+        if (!body.password1) {
+            return mensajeRegistroUsuario(req, res, { mensaje: "El campo contraseña es incorrecto.", esError: true });
+        }
+        if (!body.password2) {
+            return mensajeRegistroUsuario(req, res, { mensaje: "El campo confirme contraseña no puede ser vacio.", esError: true });
+        }
+        else {
+            try {
+                if (body.password1 == body.password2) {
+                    const salt = await bcrypt.genSalt(10);
+                    let passwordFinal = await bcrypt.hash(body.password1, salt);
+                    await sequelize.query('CALL CREARUSUARIO(:nombre,:apellido,:email,:password,:id_rol)',
+                        {
+                            replacements: {
+                                nombre: body.nombre.trim(),
+                                apellido: body.apellido.trim(),
+                                email: body.email.trim(),
+                                password: passwordFinal,
+                                id_rol: body.id_rol,
+                            }
+                        });
+                    mensajeRegistroUsuario(req, res, { mensaje: "El usuario fue creado exitosamente.", esError: false });
+                }
+                else {
+                    mensajeRegistroUsuario(req, res, { mensaje: "Los campos password no coinciden.", esError: true });
+                }
+            }
+            catch (error) {
+                res.status(400).send(error.message);
+            }
+        }
+    }
+    else {
+        mensajeRegistroUsuario(req, res, { mensaje: "Ya existe un usuario con ese email", esError: true });
+    }
+}
+exports.nuevoUsuarioVista = async function (req, res) {
+    let msj = req.flash("mensaje");
+    let rolesData = await roles.findAll();
+    res.render('Usuarios/nuevoUsuario', { mensaje: msj, roles: rolesData });
+}
+exports.borrarUsuario = async function (req, res) {
+    let idBorrar = req.params.id;
+    if (validation.isNumber(idBorrar)) {
+        let usuarioData = await usuarios.findOne({ where: { ver_usuario: 1, id_usuario: idBorrar.trim() } });
+        if (usuarioData == null) {
+            res.redirect('/home/verUsuarios');
+            return;
+        }
+        else {
+            try {
+                await sequelize.query('CALL BORRARUSUARIO(:IDUSUARIO)',
+                    {
+                        replacements: {
+                            IDUSUARIO: idBorrar.trim(),
+                        }
+                    });
+                res.redirect('/home/verUsuarios');
+            }
+
+            catch (error) {
+                res.status(400).send(error.message);
+            }
+        }
+    }
+    else {
+        res.redirect('/home/verUsuarios');
+    }
+}
+exports.verUsuarios = async function (req, res) {
+    let usuariosData = await usuarios.findAll({
+        where: { ver_usuario: 1 },
+        include: { model: roles }
+    });
+    res.render('Usuarios/verUsuarios', { usuarios: usuariosData });
+}
+exports.editarUsuarioVista = async function (req, res) {
+    let idModificar = req.params.id;
+    let msj = req.flash("mensaje");
+    if (validation.isNumber(idModificar)) {
+        let usuarioData = await usuarios.findOne({ where: { ver_usuario: 1, id_usuario: idModificar } });
+        if (usuarioData != null) {
+            let rolesData = await roles.findAll();
+            res.render('Usuarios/editarUsuario', { mensaje: msj, roles: rolesData, usuario: usuarioData });
+        }
+        else {
+            res.redirect("/home/verUsuarios");
+        }
+    }
+    else {
+        res.redirect("/home/verUsuarios");
+    }
+}
+exports.editarUsuario = async function (req, res) {
+    let body = req.body;
+    let idModificar = req.params.id;
+    if (validation.isNumber(idModificar)) {
+        if (!validation.isOnlyText(body.nombre)) {
+            return mensajeEditaUsuario(req, res, { mensaje: "El campo nombre es incorrecto.", esError: true }, idModificar);
+        }
+        if (!validation.isOnlyText(body.apellido)) {
+            return mensajeEditaUsuario(req, res, { mensaje: "El campo apellido es incorrecto.", esError: true }, idModificar);
+        }
+        if (!validation.isNumber(body.id_rol)) {
+            return mensajeEditaUsuario(req, res, { mensaje: "El rol es incorrecto.", esError: true }, idModificar);
+        }
+        if (!validation.isEmail(body.email)) {
+            return mensajeEditaUsuario(req, res, { mensaje: "El campo email es incorrecto.", esError: true }, idModificar);
+        }
+        else {
+            try {
+                await sequelize.query('CALL EDITARUSUARIO(:idusuario,:nombre,:apellido,:email,:id_rol)',
+                    {
+                        replacements: {
+                            idusuario: idModificar,
+                            nombre: body.nombre.trim(),
+                            apellido: body.apellido.trim(),
+                            email: body.email.trim(),
+                            id_rol: body.id_rol,
+                        }
+                    });
+                mensajeEditaUsuario(req, res, { mensaje: "El usuario fue editado exitosamente.", esError: false }, idModificar);
+
+            }
+            catch (error) {
+                res.status(400).send(error.message);
+            }
+        }
+    }
+    else {
+        res.redirect("/home/verUsuarios");
+    }
+
+}
+exports.cambiarPasswordVista = async function (req, res) {
+    let idModificar = req.params.id;
+    console.log(idModificar);
+    let msj = req.flash("mensaje");
+    if (validation.isNumber(idModificar)) {
+        let usuarioData = await usuarios.findOne({ where: { ver_usuario: 1, id_usuario: idModificar } });
+        if (usuarioData != null) {
+            res.render('Usuarios/cambiarPassword', { mensaje: msj, usuario: usuarioData }); // mensaje: msj,}
+        }
+        else {
+            res.redirect("/home/verUsuarios");
+        }
+    }
+}
+exports.cambiarPassword = async function (req, res) {
+    let body = req.body;
+    let idModificar = req.params.id;
+    if (validation.isNumber(idModificar)) {
+        if (!body.password1) {
+            return mensajeEditarPassword(req, res, { mensaje: "El campo contraseña es incorrecto.", esError: true }, idModificar);
+        }
+        if (!body.password2) {
+            return mensajeEditarPassword(req, res, { mensaje: "El campo confirme contraseña no puede ser vacio.", esError: true }, idModificar);
+        }
+        else {
+            try {
+                if (body.password1 == body.password2) {
+                    const salt = await bcrypt.genSalt(10);
+                    let passwordActual = await bcrypt.hash(body.password1, salt);
+                    await sequelize.query('CALL EDITARPASSWORD(:IDUSUARIO,:PASSWORDNUEVA)',
+                        {
+                            replacements: {
+                                IDUSUARIO: idModificar,
+                                PASSWORDNUEVA: passwordActual,
+                            }
+                        });
+                    mensajeEditarPassword(req, res, { mensaje: "Se cambio la contraseña con exito", esError: false }, idModificar);
+                }
+                else {
+                    mensajeEditarPassword(req, res, { mensaje: "Los campos password no coinciden.", esError: true }, idModificar);
+                }
+            }
+            catch (error) {
+                res.status(400).send(error.message);
+            }
+        }
+    }
+    else {
+        //mensajeEditarPassword(req, res, { mensaje: "Ya existe un usuario con ese email", esError: true });
+        res.redirect("/home/verUsuarios");
+    }
+}
+
+//MATERIAS
+
+exports.nuevaMateriaVista = function (req, res) {
+    let msj = req.flash("mensaje");
+    let fechaActual = new moment().format('YYYY-MM-DD');
+
+    /*let f = "2022-02-07";//"2022-02-07"
+    console.log(validation.isDate(f));*/
+
+
+    res.render('Materias/nuevaMateria', { mensaje: msj, fecha: fechaActual });
+}
+exports.nuevaMateria = async function (req, res) {
+    let body = req.body;
+    let materia = await materias.findOne({ where: { nombre_materia: body.nombre } });
+    if (!materia) {
+        if (!body.nombre) {
+            return mensajeNuevaMateria(req, res, { mensaje: "El campo nombre no puede ser vacio", esError: true });
+        }
+        if (!body.fecha_inicio) {
+            return mensajeNuevaMateria(req, res, { mensaje: "El campo fecha inicio no puede ser vacio", esError: true });
+        }
+        if (!body.fecha_fin) {
+            return mensajeNuevaMateria(req, res, { mensaje: "El campo fecha fin no puede ser vacio.", esError: true });
+        }
+        else {
+            try {
+
+                await sequelize.query('CALL CREARMATERIA(:NOMBREMATERIA,:INICIOCURSADA,:FINCURSADA)',
+                    {
+                        replacements: {
+                            NOMBREMATERIA: body.nombre,
+                            INICIOCURSADA: body.fecha_inicio,
+                            FINCURSADA: body.fecha_fin,
+                        }
+                    });
+                mensajeNuevaMateria(req, res, { mensaje: "Materia creada exitosamente.", esError: false });
+            }
+            catch (error) {
+                res.status(400).send(error.message);
+            }
+        }
+    }
+    else {
+        mensajeNuevaMateria(req, res, { mensaje: "Ya existe una materia con ese nombre", esError: true });
+    }
+}
+exports.borrarMateria = async function (req, res) {
+    let idBorrar = req.params.id;
+    if (validation.isNumber(idBorrar)) {
+        let materiaData = await materias.findOne({ where: { ver_materia: 1, id_materia: idBorrar.trim() } });
+        if (materiaData == null) {
+            res.redirect('/home/verMaterias');
+            return;
+        }
+        else {
+            try {
+                await sequelize.query('CALL BORRARMATERIA(:IDMATERIA)',
+                    {
+                        replacements: {
+                            IDMATERIA: idBorrar.trim(),
+                        }
+                    });
+                res.redirect('/home/verMaterias');
+            }
+
+            catch (error) {
+                res.status(400).send(error.message);
+            }
+        }
+    }
+    else {
+        res.redirect('/home/verMaterias');
+    }
+}
+exports.verMaterias = async function (req, res) {
+    let materiasData = await materias.findAll({
+        where: { ver_materia: 1 }
+    });
+    res.render('Materias/verMaterias', { materias: materiasData });
+}
+exports.editarMateriaVista = async function (req, res) {
+    let idModificar = req.params.id;
+    let msj = req.flash("mensaje");
+    if (validation.isNumber(idModificar)) {
+        let materiaData = await materias.findOne({ where: { ver_materia: 1, id_materia: idModificar } });
+        if (materiaData != null) {
+            res.render('Materias/editarMateria', { mensaje: msj, materia: materiaData });
+        }
+        else {
+            res.redirect("/home/verMaterias");
+        }
+    }
+    else {
+        res.redirect("/home/verMaterias");
+    }
+}
+exports.editarMateria = async function (req, res) {
+    let body = req.body;
+    let idModificar = req.params.id;
+    console.log(idModificar);
+    if (validation.isNumber(idModificar)) {
+        if (!body.nombre) {
+            return mensajeEditaMateria(req, res, { mensaje: "El campo nombre no puede ser vacio", esError: true }, idModificar);
+        }
+        if (!body.fecha_inicio) {
+            return mensajeEditaMateria(req, res, { mensaje: "El campo fecha inicio no puede ser vacio", esError: true }, idModificar);
+        }
+        if (!body.fecha_fin) {
+            return mensajeEditaMateria(req, res, { mensaje: "El campo fecha fin no puede ser vacio.", esError: true }, idModificar);
+        }
+        else {
+            try {
+                await sequelize.query('CALL EDITARMATERIA(:IDMATERIA,:NOMBREMATERIA,:INICIOCURSADA,:FINCURSADA)',
+                    {
+                        replacements: {
+                            IDMATERIA: idModificar,
+                            NOMBREMATERIA: body.nombre,
+                            INICIOCURSADA: body.fecha_inicio,
+                            FINCURSADA: body.fecha_fin,
+                        }
+                    });
+                mensajeEditaMateria(req, res, { mensaje: "Materia fue editada exitosamente.", esError: false }, idModificar);
+
+            }
+            catch (error) {
+                res.status(400).send(error.message);
+            }
+        }
+    }
+    else {
+        res.redirect("/home/verMaterias");
+    }
+
+}
+exports.asignarProfesorVista = async function (req, res) {
+    let idProfesor = req.params.id;
+    let materiasData = await materias.findAll({
+        where: { ver_materia: 1 }
+    });
+    let profesorData = await usuarios.findOne({
+        where: { ver_usuario: 1, id_rol: 2, id_usuario: idProfesor }
+    });
+    let MateriaProfesorData = await dictadoMateria.findAll({
+        group: 'id_materia',
+        where: { id_usuario: idProfesor, ver_dictadomateria: 1 },
+        include: { model: materias }
+    });
+    res.render('Usuarios/AsignarMaterias', { materiasSinAsignar: materiasData, materiasAsignadas: MateriaProfesorData, profesor: profesorData });
+}
+exports.asignarProfesor = async function (req, res) {
+    let idProfesor = req.params.idProfesor;
+    let idMateria = req.params.idMateria;
+    if (validation.isNumber(idProfesor) && validation.isNumber(idMateria)) {
+        let MateriaProfesorData = await dictadoMateria.findAll({
+            where: { id_usuario: idProfesor, id_materia: idMateria, ver_dictadomateria: 1 },
+        });
+        if (MateriaProfesorData.length === 0) {
+            await sequelize.query('CALL CREARDICTADOMATERIA(:IDMATERIA,:IDUSUARIO)',
+                {
+                    replacements: {
+                        IDMATERIA: idMateria,
+                        IDUSUARIO: idProfesor,
+                    }
+                });
+        }
+        res.redirect("/home/asignarProfesor/" + idProfesor);
+    }
+    else {
+        res.redirect("/home/verUsuarios");
+    }
+}
+exports.eliminarMateriaAsignada = async function (req, res) {
+    let idDictadoMateria = req.params.id;
+    if (validation.isNumber(idDictadoMateria)) {
+        let profesor = await dictadoMateria.findOne({ where: { id_dictadoMateria: idDictadoMateria } });
+        await sequelize.query('CALL BORRARDICTADOMATERIA(:IDDICTADOMATERIA)',
+            {
+                replacements: {
+                    IDDICTADOMATERIA: idDictadoMateria,
+                }
+            });
+        res.redirect("/home/asignarProfesor/" + profesor.id_usuario);
+    }
+    else {
+        res.redirect("/home/verUsuarios");
+    }
+}
+
+exports.profesoresAsignadosVista = async function (req, res) {
+    let idMateria = req.params.id;
+    let materiaData = await materias.findOne({ where: { id_materia: idMateria, ver_materia: 1 } });
+    let materiaProfesorData = await dictadoMateria.findAll({
+        group: 'id_usuario',
+        where: { id_materia: idMateria, ver_dictadomateria: 1 },
+        include: { model: usuarios }
+    });
+    res.render('Materias/verProfesores', { materia: materiaData, profesoresAsignados: materiaProfesorData });
+}
+
+//HORARIOS
+
+exports.verHorariosVista = async function (req, res) { }
+exports.verHorarios = async function (req, res) { }
+
+//VISTA GENERAL
+
+exports.vistaGeneralAsistencia = async function (req, res) { }
+
+//METODOS
+
+function mensajeRegistroUsuario(req, res, mensaje) {
+    req.flash('mensaje', mensaje);
+    res.redirect('/home/nuevoUsuario');
+}
+function mensajeEditaUsuario(req, res, mensaje, idModificar) {
+    req.flash('mensaje', mensaje);
+    res.redirect('/home/editarUsuario/' + idModificar);
+}
+function mensajeNuevaMateria(req, res, mensaje) {
+    req.flash('mensaje', mensaje);
+    res.redirect('/home/nuevaMateria');
+}
+function mensajeEditaMateria(req, res, mensaje, idModificar) {
+    req.flash('mensaje', mensaje);
+    res.redirect('/home/editarMateria/' + idModificar);
+}
+function mensajeEditarPassword(req, res, mensaje, idModificar) {
+    req.flash('mensaje', mensaje);
+    res.redirect('/home/cambiarPassword/' + idModificar);
+}

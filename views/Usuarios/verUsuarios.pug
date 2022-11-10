@@ -1,0 +1,35 @@
+extends ../layoutCoordinadores
+block page
+    div 
+        div
+            h3.mt-3 Usuarios
+            table(class= "table table-striped")
+                tr 
+                    th Nombre 
+                    th Apellido
+                    th email
+                    th rol
+                    th
+                    th
+                    th
+                    th
+                each usuario in usuarios
+                    tr
+                        td #{usuario.nombre_usuario}
+                        td #{usuario.apellido_usuario}
+                        td #{usuario.email_usuario}
+                        td #{usuario.role.descripcion_rol}
+                        td
+                            a.btn.btn-outline-warning.btn-sm(href="/home/editarUsuario/"+usuario.id_usuario) Modificar
+                        if usuario.role.id_rol == 2
+                            td
+                                a.btn.btn-outline-primary.btn-sm(href="/home/asignarProfesor/"+usuario.id_usuario) Asignar materia
+                        else 
+                            td
+                        td
+                            a.btn.btn-outline-secondary.btn-sm(href="/home/cambiarPassword/"+usuario.id_usuario) Cambiar Contraseña
+                        td
+                            form(action="/home/borrarUsuario/"+usuario.id_usuario+"?_method=delete", method="post") 
+                                input.btn.btn-outline-danger.btn-sm(type="submit", value="Borrar")
+            if usuarios.length == 0
+                p.text-center No existen usuarios

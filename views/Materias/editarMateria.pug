@@ -1,0 +1,27 @@
+extends ../layoutCoordinadores
+block page
+    div 
+        div.mt-3
+            h4 Editar materia
+            .row 
+                .col-6  
+                    form(action="/home/editarMateria/"+materia.id_materia+"?_method=put", method="post")
+                        div.mb-3
+                            Label.form-label Nombre:
+                            input.form-control(type="text", name="nombre", value= materia.nombre_materia)
+                        div.mb-3
+                            Label.form-label Inicio cursada:
+                            input.form-control(type="date", name="fecha_inicio",value= materia.fecha_inicio_cursada) 
+                        div.mb-3
+                            Label.form-label Fin cursada:
+                            input.form-control(type="date", name="fecha_fin",value= materia.fecha_fin_cursada)
+                        div.mb-3
+                            input.btn.btn-success(type="submit", value="Confirmar")
+                    if mensaje && mensaje.length > 0
+                        div(class="mt-3")
+                            if mensaje[0].esError
+                                div(class="alert alert-danger" role="alert")
+                                    span #{mensaje[0].mensaje}
+                            else 
+                                div(class="alert alert-success" role="alert")
+                                    span #{mensaje[0].mensaje}
