@@ -16,11 +16,12 @@ block page
                         td #{alumno.usuario.apellido_usuario}
                         td #{alumno.usuario.email_usuario}
                         td
-                            form(action="/home/validaAlumnoMateria/"+alumno.id_cursadomateria , method="post") 
+                            form(action="/home/validaAlumnoMateria/"+alumno.id_cursadomateria, method="post") 
                                 input.btn.btn-success.btn-sm(type="submit", value="Registrar alumno")
                         td
-                            form(action="/home/rechazoAlumnoMateria/"+alumno.usuario.id_usuario +"/"+ alumno.id_materia+"?_method=delete", method="post") 
+                            form(action="/home/rechazoAlumnoMateria/"+alumno.id_cursadomateria+"?_method=delete", method="post") 
                                 input.btn.btn-danger.btn-sm(type="submit", value="No registrar alumno")
+            
             if alumnosARegistrar.length == 0
                 p.text-center No hay alumnos para registrar.
         div.mt-5

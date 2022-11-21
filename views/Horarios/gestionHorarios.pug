@@ -1,0 +1,31 @@
+extends ../layoutProfesores
+block page
+    div 
+        div.mt-5 
+            h3.mt-3 Horarios de #{materia.nombre_materia}
+            a.btn.btn-outline-success.btn-sm(href="/home/agregarHorario/"+ materia.id_materia) Nuevo horario
+            table(class= "table table-striped")
+                tr 
+                    th Dia de cursada
+                    th Hora desde
+                    th Hora hasta
+                    th Horario disponible
+                    th 
+                    th
+                each horario in horarios
+                    tr
+                        each d, index in dias
+                            if index+1 == horario.dia_cursado
+                                td #{d}
+                        td #{horario.hora_desde}
+                        td #{horario.hora_hasta}
+                        each a, index in activo
+                            if index+1 == horario.clase_activa
+                                td #{a}
+                        td
+                            a.btn.btn-outline-warning.btn-sm(href="/home/modificarHorario/"+materia.id_materia+"/"+horario.id_horario) Editar horario
+                        td
+                            form(action="/home/borrarHorario/"+materia.id_materia+"/"+horario.id_horario+"?_method=delete", method="post") 
+                                input.btn.btn-outline-danger.btn-sm(type="submit", value="Borrar horario")
+            if horarios.length == 0
+                p.text-center No existen horarios asignados.

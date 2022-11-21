@@ -15,9 +15,9 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    dia_cursado: DataTypes.DATE,
-    hora_desde: DataTypes.DATE,
-    hora_hasta: DataTypes.DATE,
+    dia_cursado: DataTypes.INTEGER,
+    hora_desde: DataTypes.STRING,
+    hora_hasta: DataTypes.STRING,
     clase_activa: DataTypes.BOOLEAN,
     id_materia: DataTypes.INTEGER,
     ver_horario: DataTypes.BOOLEAN

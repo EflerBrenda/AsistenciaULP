@@ -18,9 +18,29 @@ function isDate(valor) {
         return true;
     }
     //return moment(valor).format('MM-DD-YYYY');
+
+}
+function isHour(valor) {
+
+    return valor && (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).test(valor);
 }
 
 
-module.exports = { isOnlyText, isNumber, isEmail, isDate }
+
+function isValidHour(valorDesde, valorHasta) {
+    let horaDesde = moment(valorDesde, 'h:mm');
+    let horaHasta = moment(valorHasta, 'h:mm');
+    let horaValidaDesde = moment('09:00', 'h:mm');
+    let horaValidaHasta = moment('22:00', 'h:mm');
+
+    if (horaDesde <= horaHasta && horaDesde >= horaValidaDesde && horaDesde <= horaValidaHasta && horaHasta <= horaValidaHasta && horaHasta >= horaValidaDesde) {
+        return true;
+
+    }
+    return false;
+
+}
+
+module.exports = { isOnlyText, isNumber, isEmail, isDate, isHour, isValidHour }
 
 

@@ -31,9 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     condicion_alumno: DataTypes.INTEGER,
-    habilitar_cursada: DataTypes.BOOLEAN,
-    inhabilitar_cursada: DataTypes.BOOLEAN,
-    ver_cursadomateria: DataTypes.BOOLEAN
+    habilitar_cursada: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'cursadoMateria',

@@ -400,7 +400,6 @@ exports.eliminarMateriaAsignada = async function (req, res) {
         res.redirect("/home/verUsuarios");
     }
 }
-
 exports.profesoresAsignadosVista = async function (req, res) {
     let idMateria = req.params.id;
     let materiaData = await materias.findOne({ where: { id_materia: idMateria, ver_materia: 1 } });

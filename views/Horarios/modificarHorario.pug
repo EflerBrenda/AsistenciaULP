@@ -1,0 +1,42 @@
+extends ../layoutProfesores
+block page
+    div 
+        div.mt-3
+            h4 Modificar horario
+            .row 
+                .col-6  
+                    form(action="/home/modificarHorario/"+idMateria+"/"+horario.id_horario+"?_method=put", method="post")
+                        div.mb-3
+                            Label.form-label Día de la semana:
+                            select.form-select(name="dia_cursado")
+                                each d, index in dias
+                                    if index+1 == horario.dia_cursado
+                                        option(value=horario.dia_cursado selected) #{d}
+                                    else
+                                        option(value=index+1) #{d}
+                        div.mb-3
+                            Label.form-label Hora comienzo de clase:
+                            input.form-control(type="time", name="hora_desde" value=horario.hora_desde) 
+                        div.mb-3
+                            Label.form-label Hora finalización de clase:
+                            input.form-control(type="time", name="hora_hasta" value=horario.hora_hasta)
+                        div.mb-3
+                            Label.form-label La clase se dicta?:
+                            select.form-select(name="clase_activa")
+                                each a, index in activo
+                                    if index+1 == horario.clase_activa
+                                        option(value=index+1 selected) #{a}
+                                    else
+                                        option(value=index+1) #{a}
+                        div.mb-3
+                            input.btn.btn-success(type="submit", value="Confirmar")
+                        div.mb-3
+                            a.btn.btn-outline-secondary.btn-sm(href="/home/gestionHorario/"+idMateria) Volver atrás
+                    if mensaje && mensaje.length > 0
+                        div(class="mt-3")
+                            if mensaje[0].esError
+                                div(class="alert alert-danger" role="alert")
+                                    span #{mensaje[0].mensaje}
+                            else 
+                                div(class="alert alert-success" role="alert")
+                                    span #{mensaje[0].mensaje}
