@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   class horario extends Model {
 
     static associate(models) {
-      horario.hasMany(models.materias, { foreignKey: "id_materia" });
+      horario.belongsTo(models.materias, { foreignKey: "id_materia" });
     }
   }
   horario.init({

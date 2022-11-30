@@ -2,12 +2,17 @@
 const {
   Model
 } = require('sequelize');
+const materias = require('./materias');
 module.exports = (sequelize, DataTypes) => {
   class cursadoMateria extends Model {
 
     static associate(models) {
+
       cursadoMateria.belongsTo(models.materias, { foreignKey: "id_materia" });
       cursadoMateria.belongsTo(models.usuarios, { foreignKey: "id_usuario" });
+      /*cursadoMateria.belongsToMany(models.materias, { through: "materias" });
+      cursadoMateria.belongsToMany(models.usuarios, { through: "usuarios" });
+      materias.belongsToMany(models.usuarios, { through: "cursadomateria" });*/
     }
   }
   cursadoMateria.init({

@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       materias.belongsToMany(models.usuarios, { through: "dictadomateria" });
       materias.belongsToMany(models.usuarios, { through: "cursadomateria" });
+      materias.hasMany(models.horario, { foreignKey: "id_materia" });
     }
   }
   materias.init({

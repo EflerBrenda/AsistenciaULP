@@ -1,0 +1,21 @@
+extends ../layoutAlumnos
+block page
+    div 
+        div.mt-3
+            a.btn.btn-success.btn-sm(href="/home/verMateriasDisponibles") Registrarse a una materia
+            h3.mt-3 Materias registrada:
+            table(class= "table table-striped")
+                tr 
+                    th Materia 
+                    th Fecha inicio
+                    th Fecha fin
+                    th 
+                each materia in materias
+                    tr
+                        td #{materia.materia.nombre_materia}
+                        td #{materia.materia.fecha_inicio_cursada}
+                        td #{materia.materia.fecha_fin_cursada}
+                        td
+                            a.btn.btn-outline-warning.btn-sm(href="/home/verMateria/"+materia.materia.id_materia) Ver horario de la materia
+            if materias.length == 0
+                p.text-center No existen materias registradas.

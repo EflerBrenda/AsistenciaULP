@@ -12,7 +12,12 @@ block content
                             a#navbarDropdownMenuLink.nav-link.dropdown-toggle(href='/home', role='button', data-bs-toggle='dropdown', aria-expanded='false') Materias
                             ul.dropdown-menu(aria-labelledby='navbarDropdownMenuLink')
                                 li
-                                    a.dropdown-item(href="/home/verMateriasAsignadas") Ver materias asignadas
+                                    a.dropdown-item(href="/home/verMateriasRegistradas") Ver materias registradas
+                        li.nav-item.dropdown
+                            a#navbarDropdownMenuLink.nav-link.dropdown-toggle(href='/home', role='button', data-bs-toggle='dropdown', aria-expanded='false') Asistencia
+                            ul.dropdown-menu(aria-labelledby='navbarDropdownMenuLink')
+                                li
+                                    a.dropdown-item(href="/home/verMateriasRegistradas") Nueva asistencia
                 form(action="/logout", method="post")
                     input(type="submit", value="Cerrar sesion", class="btn btn-danger btn-sm")
     block page

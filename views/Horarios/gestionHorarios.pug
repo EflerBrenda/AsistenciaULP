@@ -4,6 +4,7 @@ block page
         div.mt-5 
             h3.mt-3 Horarios de #{materia.nombre_materia}
             a.btn.btn-outline-success.btn-sm(href="/home/agregarHorario/"+ materia.id_materia) Nuevo horario
+            a.btn.btn-outline-secondary.btn-sm(href="/home/verMateriasAsignadas") Volver atrás
             table(class= "table table-striped")
                 tr 
                     th Dia de cursada

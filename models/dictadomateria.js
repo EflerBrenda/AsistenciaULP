@@ -8,8 +8,6 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       dictadoMateria.belongsTo(models.materias, { foreignKey: "id_materia" });
       dictadoMateria.belongsTo(models.usuarios, { foreignKey: "id_usuario" });
-      /*dictadoMateria.hasMany(models.usuarios, { foreignKey: "id_usuario" });
-      dictadoMateria.hasMany(models.materias, { foreignKey: "id_materia" });*/
     }
   }
   dictadoMateria.init({

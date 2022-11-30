@@ -6,7 +6,15 @@ const horarios = require('../models').horario;
 const validation = require("../utils/validationMethods");
 const { sequelize, Sequelize } = require('../models');
 
+exports.verMateriasAsignadas = async function (req, res) {
 
+    let idUsuario = req.session.id_usuario;
+    let materiaProfesorData = await dictadoMateria.findAll({
+        where: { id_usuario: idUsuario, ver_dictadomateria: 1 },
+        include: { model: materias }
+    });
+    res.render('Materias/verMateriasAsignadas', { materias: materiaProfesorData });
+}
 exports.validarAlumnosVista = async function (req, res) {
     let idMateria = req.params.idMateria;
     let materiaAlumnoRegistroData = await cursadoMateria.findAll({
@@ -47,23 +55,35 @@ exports.validaAlumnoMateria = async function (req, res) {
 }
 exports.rechazoAlumnoMateria = async function (req, res) {
     let idCursado = req.params.idCursado;
-
+    let idUsuario = req.session.id_usuario;
     if (validation.isNumber(idCursado)) {
-        let MateriaAlumnoData = await cursadoMateria.findAll({
-            where: { id_cursadoMateria: idCursado, habilitar_cursada: 2 },
+        let MateriaCursadoData = await cursadoMateria.findOne({
+            where: { id_cursadoMateria: idCursado },
         });
-        if (MateriaAlumnoData.length === 0) {
-            await sequelize.query('CALL RECHAZARCURSADOMATERIA(:IDCURSADO)',
-                {
-                    replacements: {
-                        IDCURSADO: idCursado,
-                    }
-                });
 
+        if (MateriaCursadoData != "") {
+            let MateriaProfesorData = await dictadoMateria.findOne({
+                where: { id_materia: MateriaCursadoData.id_materia, id_usuario: idUsuario },
+            });
+            if (MateriaProfesorData != "") {
+                try {
+                    await sequelize.query('CALL RECHAZARCURSADOMATERIA(:IDCURSADO)',
+                        {
+                            replacements: {
+                                IDCURSADO: idCursado,
+                            }
+                        });
+                    res.redirect("/home/validarAlumnos/" + MateriaCursadoData.id_materia);
+                }
+                catch (error) {
+                    res.status(400).send(error.message);
+                }
+            }
+            else { res.redirect("/home/verMateriasAsignadas"); }
         }
-        let materia = await cursadoMateria.findOne({ where: { id_cursadoMateria: idCursado } });
-
-        res.redirect("/home/validarAlumnos/" + materia.id_materia);
+        else {
+            res.redirect("/home/verMateriasAsignadas");
+        }
     }
     else {
         res.redirect("/home/verMateriasAsignadas");
@@ -251,43 +271,50 @@ exports.modificarHorario = async function (req, res) {
 exports.borrarHorario = async function (req, res) {
     let idHorario = req.params.idHorario;
     let idMateria = req.params.idMateria;
-    console.log(idHorario);
-    console.log(idMateria);
+    let idUsuario = req.session.id_usuario;
+
     if (validation.isNumber(idMateria)) {
         if (validation.isNumber(idHorario)) {
-            try {
+            let materiasData = await dictadoMateria.findAll({ where: { id_usuario: idUsuario, id_materia: idMateria, ver_dictadomateria: 1 } });
+            if (materiasData != "") {
+                let horarioExiste = await horarios.findOne({ where: { id_horario: idHorario, ver_horario: 1 } });
+                if (horarioExiste != "") {
+                    try {
 
-                await sequelize.query('CALL BORRARHORARIO(:IDHORARIO)',
-                    {
-                        replacements: {
-                            IDHORARIO: idHorario,
-                        }
-                    });
+                        await sequelize.query('CALL BORRARHORARIO(:IDHORARIO)',
+                            {
+                                replacements: {
+                                    IDHORARIO: idHorario,
+                                }
+                            });
 
+                    }
+                    catch (error) {
+                        res.status(400).send(error.message);
+                    }
+                    res.redirect("/home/gestionHorario/" + idMateria);
+                }
+                else {
+                    res.redirect("/home/gestionHorario/" + idMateria);
+                }
             }
-            catch (error) {
-                res.status(400).send(error.message);
+            else {
+                res.redirect("/home/gestionHorario/" + idMateria);
             }
-            res.redirect("/home/gestionHorario/" + idMateria);
+        }
+        else {
+            res.redirect("/home/verMateriasAsignadas");
         }
     }
     else {
         res.redirect("/home/verMateriasAsignadas");
     }
-
 }
+
 exports.consultarAsistenciaVista = async function (req, res) { }
 exports.exportarAsistenciaVista = async function (req, res) { }
 exports.exportarAsistencia = async function (req, res) { }
-exports.verMateriasAsignadas = async function (req, res) {
 
-    let idUsuario = req.session.id_usuario;
-    let materiaProfesorData = await dictadoMateria.findAll({
-        where: { id_usuario: idUsuario, ver_dictadomateria: 1 },
-        include: { model: materias }
-    });
-    res.render('Materias/verMateriasAsignadas', { materias: materiaProfesorData });
-}
 function mensajeAgregarHorario(req, res, mensaje, materia) {
     req.flash('mensaje', mensaje);
     res.redirect('/home/agregarHorario/' + materia);

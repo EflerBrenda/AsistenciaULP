@@ -1,0 +1,51 @@
+extends ../layoutAlumnos
+block page
+    div 
+        div.mt-3
+            a.btn.btn-outline-secondary.btn-sm(href="/home/verMateriasRegistradas") Volver atrás
+            h3.mt-3 Materias para inscribirse:
+            table(class= "table table-striped")
+                tr 
+                    th Materia 
+                    th Fecha inicio
+                    th Fecha fin
+                    th 
+                each materia in materias
+                    tr
+                        td #{materia.materia.nombre_materia}
+                        td #{materia.materia.fecha_inicio_cursada}
+                        td #{materia.materia.fecha_fin_cursada}
+                        td
+                            form(action="/home/nuevoRegistroMateria/"+materia.materia.id_materia, method="post") 
+                                input.btn.btn-outline-success.btn-sm(type="submit", value="Inscribirme a la materia") 
+            if materias.length == 0
+                p.text-center No existen materias registradas.
+        div.mt-3
+            h3.mt-3 En espera de inscripción:
+            table(class= "table table-striped")
+                tr 
+                    th Materia 
+                    th Fecha inicio
+                    th Fecha fin
+                each r in revision
+                    tr
+                        td #{r.materia.nombre_materia}
+                        td #{r.materia.fecha_inicio_cursada}
+                        td #{r.materia.fecha_fin_cursada}
+            if revision.length == 0
+                p.text-center No existen materias en espera a ser registradas.
+        div.mt-3
+            h3.mt-3 Materias registradas:
+            table(class= "table table-striped")
+                tr 
+                    th Materia 
+                    th Fecha inicio
+                    th Fecha fin
+                each c in cursando
+                    tr
+                        td #{c.materia.nombre_materia}
+                        td #{c.materia.fecha_inicio_cursada}
+                        td #{c.materia.fecha_fin_cursada}
+            if cursando.length == 0
+                p.text-center No existen materias registradas.
+            
