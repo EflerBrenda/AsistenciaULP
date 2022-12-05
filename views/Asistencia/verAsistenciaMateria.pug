@@ -1,0 +1,28 @@
+extends ../layoutAlumnos
+block page
+    div 
+        div.mt-3
+            h3.mt-3 Materias registrada:
+            each materia in materias
+                h3.mt-3 #{materia.materia.nombre_materia}
+                p Fecha inicio: #{materia.materia.fecha_inicio_cursada}
+                p Fecha Finalización: #{materia.materia.fecha_fin_cursada}
+                    table(class= "table table-striped")
+                        tr 
+                            th Dia de cursada
+                            th Hora desde
+                            th Hora hasta
+                            th 
+                        tr
+                            each horario in materia.materia.horarios
+                                each d, index in dias
+                                    if index+1 == horario.dia_cursado
+                                        td #{d}
+                                td #{horario.hora_desde}
+                                td #{horario.hora_hasta}
+                                td
+                                    a.btn.btn-outline-warning.btn-sm(href="/home/verMateria/") Asistencia
+                            if materia.horario.length == 0
+                                p.text-center No existen horarios registrados.
+                if materias.length == 0
+                    p.text-center No existen materias registradas.

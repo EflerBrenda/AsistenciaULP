@@ -16,6 +16,6 @@ block page
                         td #{materia.materia.fecha_inicio_cursada}
                         td #{materia.materia.fecha_fin_cursada}
                         td
-                            a.btn.btn-outline-warning.btn-sm(href="/home/verMateria/"+materia.materia.id_materia) Ver horario de la materia
+                            a.btn.btn-outline-primary.btn-sm(href="/home/verMateria/"+materia.materia.id_materia) Asistir a materia
             if materias.length == 0
                 p.text-center No existen materias registradas.

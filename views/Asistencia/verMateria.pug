@@ -7,11 +7,13 @@ block page
             p Fecha inicio: #{materia.fecha_inicio_cursada}
             p Fecha finalización: #{materia.fecha_fin_cursada}
             p Profesores: #{profesores}
+            p.text-danger ATENCIÓN! Registrar asistencia hasta 30 minutos antes de la clase:
             table(class= "table table-striped")
                 tr 
                     th Dia de cursada
                     th Hora desde
                     th Hora hasta 
+                    th
                 each horario in horarios
                     tr
                         each d, index in dias
@@ -19,5 +21,12 @@ block page
                                 td #{d}
                         td #{horario.hora_desde}
                         td #{horario.hora_hasta}
+                        td 
+                            if horario.dia_cursado == diaActual
+                                if moment.duration(horaActual.diff(moment(horario.hora_desde, "h:mm"))).asMinutes() <= 30 && moment.duration(horaActual.diff(moment(horario.hora_desde, "h:mm"))).asMinutes()>=0
+                                    form(action="/home/nuevaAsistencia/"+horario.id_horario+"/"+materia.id_materia, method="post") 
+                                        input.btn.btn-outline-success.btn-sm(type="submit", value="Asistir")
+                                else 
+                                    span.badge.text-bg-danger Fuera de horario.
             if horarios.length == 0
                 p.text-center No existen horarios asignados.

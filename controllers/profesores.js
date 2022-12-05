@@ -55,39 +55,30 @@ exports.validaAlumnoMateria = async function (req, res) {
 }
 exports.rechazoAlumnoMateria = async function (req, res) {
     let idCursado = req.params.idCursado;
-    let idUsuario = req.session.id_usuario;
     if (validation.isNumber(idCursado)) {
         let MateriaCursadoData = await cursadoMateria.findOne({
             where: { id_cursadoMateria: idCursado },
         });
-
         if (MateriaCursadoData != "") {
-            let MateriaProfesorData = await dictadoMateria.findOne({
-                where: { id_materia: MateriaCursadoData.id_materia, id_usuario: idUsuario },
-            });
-            if (MateriaProfesorData != "") {
-                try {
-                    await sequelize.query('CALL RECHAZARCURSADOMATERIA(:IDCURSADO)',
-                        {
-                            replacements: {
-                                IDCURSADO: idCursado,
-                            }
-                        });
-                    res.redirect("/home/validarAlumnos/" + MateriaCursadoData.id_materia);
-                }
-                catch (error) {
-                    res.status(400).send(error.message);
-                }
+            try {
+                await sequelize.query('CALL RECHAZARCURSADOMATERIA(:IDCURSADO)',
+                    {
+                        replacements: {
+                            IDCURSADO: idCursado,
+                        }
+                    });
+                res.redirect("/home/validarAlumnos/" + MateriaCursadoData.id_materia);
             }
-            else { res.redirect("/home/verMateriasAsignadas"); }
+            catch (error) {
+                res.status(400).send(error.message);
+            }
         }
-        else {
-            res.redirect("/home/verMateriasAsignadas");
-        }
+        else { res.redirect("/home/verMateriasAsignadas"); }
     }
     else {
         res.redirect("/home/verMateriasAsignadas");
     }
+
 }
 exports.gestionHorarioVista = async function (req, res) {
     let idMateria = req.params.idMateria;

@@ -21,7 +21,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-
+app.locals.moment = require('moment');
 app.use(session({
   secret: 'asistenciaULP',
   saveUninitialized: true,

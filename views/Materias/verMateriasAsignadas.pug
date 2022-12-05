@@ -11,7 +11,6 @@ block page
                     th 
                     th
                     th
-                    th
                 each materia in materias
                     tr
                         td #{materia.materia.nombre_materia}
@@ -22,8 +21,6 @@ block page
                         td
                             a.btn.btn-outline-primary.btn-sm(href="/home/validarAlumnos/"+materia.id_materia) Validar alumnos
                         td
-                            a.btn.btn-outline-info.btn-sm(href="/home/consultarAsistencia/"+materia.id_materia) Consultar asistencia
-                        td
-                            a.btn.btn-outline-secondary.btn-sm(href="/home/exportarAsistencia/"+materia.id_materia) Exportar asistencia
+                            a.btn.btn-outline-secondary.btn-sm(href="/home/consultarAsistencia/"+materia.id_materia) Consultar asistencia
             if materias.length == 0
                 p.text-center No existen materias asignadas.

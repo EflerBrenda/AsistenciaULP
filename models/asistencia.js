@@ -18,9 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     id_usuario: DataTypes.INTEGER,
     id_materia: DataTypes.INTEGER,
-    fecha_cursada: DataTypes.DATE,
+    fecha_asistencia: DataTypes.STRING,
     hora_asistencia: DataTypes.DATE,
-    observacion_asistencia: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'asistencia',

@@ -10,7 +10,6 @@ router.get('/verMateriasRegistradas', autenticacion.autenticacionAlumno, alumnos
 router.get('/verMateria/:idMateria', autenticacion.autenticacionAlumno, alumnosController.verMateriaVista);
 
 //Asistencia
-router.get('/nuevaAsistencia', autenticacion.autenticacionAlumno, alumnosController.nuevaAsistenciaVista);
-router.post('/nuevaAsistencia', autenticacion.autenticacionAlumno, alumnosController.nuevaAsistencia);
+router.post('/nuevaAsistencia/:idHorario/:idMateria', autenticacion.autenticacionAlumno, alumnosController.nuevaAsistencia);
 
 module.exports = router;
