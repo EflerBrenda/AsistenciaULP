@@ -13,8 +13,8 @@ block page
                 each materia in materias
                     tr
                         td #{materia.materia.nombre_materia}
-                        td #{materia.materia.fecha_inicio_cursada}
-                        td #{materia.materia.fecha_fin_cursada}
+                        td #{moment(materia.materia.fecha_inicio_cursada.toString()).format('DD-MM-YYYY')}
+                        td #{moment(materia.materia.fecha_fin_cursada.toString()).format('DD-MM-YYYY')}
                         td
                             form(action="/home/nuevoRegistroMateria/"+materia.materia.id_materia, method="post") 
                                 input.btn.btn-outline-success.btn-sm(type="submit", value="Inscribirme a la materia") 
@@ -30,8 +30,8 @@ block page
                 each r in revision
                     tr
                         td #{r.materia.nombre_materia}
-                        td #{r.materia.fecha_inicio_cursada}
-                        td #{r.materia.fecha_fin_cursada}
+                        td #{moment(r.materia.fecha_inicio_cursada.toString()).format('DD-MM-YYYY')}
+                        td #{moment(r.materia.fecha_fin_cursada.toString()).format('DD-MM-YYYY')}
             if revision.length == 0
                 p.text-center No existen materias en espera a ser registradas.
         div.mt-3
@@ -44,8 +44,8 @@ block page
                 each c in cursando
                     tr
                         td #{c.materia.nombre_materia}
-                        td #{c.materia.fecha_inicio_cursada}
-                        td #{c.materia.fecha_fin_cursada}
+                        td #{moment(c.materia.fecha_inicio_cursada.toString()).format('DD-MM-YYYY')}
+                        td #{moment(c.materia.fecha_fin_cursada.toString()).format('DD-MM-YYYY')}
             if cursando.length == 0
                 p.text-center No existen materias registradas.
             

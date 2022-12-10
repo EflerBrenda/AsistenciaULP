@@ -6,6 +6,9 @@ const usuarios = require('../models').usuarios;
 const roles = require('../models').roles;
 const materias = require('../models').materias;
 const dictadoMateria = require('../models').dictadoMateria;
+const cursadoMateria = require('../models').cursadoMateria;
+const asistencia = require('../models').asistencia;
+const horarios = require('../models').horario;
 
 //USUARIOS
 
@@ -217,11 +220,6 @@ exports.cambiarPassword = async function (req, res) {
 exports.nuevaMateriaVista = function (req, res) {
     let msj = req.flash("mensaje");
     let fechaActual = new moment().format('YYYY-MM-DD');
-
-    /*let f = "2022-02-07";//"2022-02-07"
-    console.log(validation.isDate(f));*/
-
-
     res.render('Materias/nuevaMateria', { mensaje: msj, fecha: fechaActual });
 }
 exports.nuevaMateria = async function (req, res) {
@@ -418,7 +416,72 @@ exports.verHorarios = async function (req, res) { }
 
 //VISTA GENERAL
 
-exports.vistaGeneralAsistencia = async function (req, res) { }
+exports.vistaGeneralAsistencia = async function (req, res) {
+    /*let asistenciaData = await asistencia.findAll({
+        include: { model: materias, where: { ver_materia: 1 }, attributes: ['nombre_materia'] },
+        attributes: ['id_materia', 'fecha_asistencia', [sequelize.fn('COUNT', sequelize.col('fecha_asistencia')), 'asistencia']],
+        order: ['fecha_asistencia'],
+        group: ['fecha_asistencia']
+    });*/
+    //let asistenciaData= await asistencia.count();
+
+    //console.log(asistenciaData);
+    let materiasData = await materias.findAll({ where: { ver_materia: 1 } });
+    let horariosData = await horarios.findAll({ where: { ver_horario: 1 } });
+    let alumnosCursandoData = await cursadoMateria.findAll({
+        where: { habilitar_cursada: 1 },
+        include: { model: usuarios, where: { ver_usuario: 1 } },
+    });
+    let objetoAsistencia = [];
+
+    let fechaActual = moment();
+    for (let i = 0; i < materiasData.length; i++) {
+        let fechasCursada = [];
+        let fechaInicio = moment(materiasData[i].fecha_inicio_cursada);
+        let fechaFin = moment(materiasData[i].fecha_fin_cursada);
+        if (fechaActual.isBefore(fechaFin, 'day')) {
+            fechaFin = fechaActual;
+        }
+
+        //let diferencia = fechaFinCursada.diff(fechaInicio, 'days');
+        let diferencia = fechaFin.diff(fechaInicio, 'days');
+        let horariosMateria = horariosData.filter(h => h.id_materia == materiasData[i].id_materia);
+        let alumnosCursando = alumnosCursandoData.filter(a => a.id_materia == materiasData[i].id_materia).length;
+        let cantDias = 0;
+        for (let e = 0; e <= diferencia; e++) {
+            for (let h = 0; h < horariosMateria.length; h++) {
+                if (horariosMateria[h].dia_cursado == fechaInicio.isoWeekday()) {
+                    fechasCursada.push(fechaInicio.format('DD-MM-YY'));
+                    cantDias++;
+                    break;
+                }
+            }
+
+            fechaInicio = fechaInicio.add(1, 'day');
+        }
+        let objeto = { id: materiasData[i].id_materia, nombre: materiasData[i].nombre_materia, asistenciaTotal: (alumnosCursando * cantDias), fechas: [] };
+        objeto.fechas = fechasCursada;
+        objetoAsistencia.push(objeto);
+    }
+    console.log(objetoAsistencia);
+    let materiaAsistencia = [];
+    for (let i = 0; i < objetoAsistencia.length; i++) {
+        let asistenciasMateria = await asistencia.count({ where: { id_materia: objetoAsistencia[i].id } });
+        if (asistenciasMateria == 0) {
+            asistenciasMateria = 0;
+        }
+        else {
+            asistenciasMateria = (asistenciasMateria * 100) / objetoAsistencia[i].asistenciaTotal;
+
+        }
+        let objeto = { nombre: objetoAsistencia[i].nombre, asistencia: Math.round(asistenciasMateria) };
+        materiaAsistencia.push(objeto);
+    }
+    res.render('Asistencia/semaforoAsistencia', { materiasAsistencia: materiaAsistencia })
+}
+
+
+
 
 //METODOS
 

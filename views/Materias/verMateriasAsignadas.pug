@@ -14,8 +14,8 @@ block page
                 each materia in materias
                     tr
                         td #{materia.materia.nombre_materia}
-                        td #{materia.materia.fecha_inicio_cursada}
-                        td #{materia.materia.fecha_fin_cursada}
+                        td #{moment(materia.materia.fecha_inicio_cursada).format('DD-MM-YYYY')}
+                        td #{moment(materia.materia.fecha_fin_cursada).format('DD-MM-YYYY')}
                         td
                             a.btn.btn-outline-warning.btn-sm(href="/home/gestionHorario/"+materia.id_materia) Gestion horarios
                         td

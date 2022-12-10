@@ -13,8 +13,8 @@ block page
                 each materia in materias
                     tr
                         td #{materia.materia.nombre_materia}
-                        td #{materia.materia.fecha_inicio_cursada}
-                        td #{materia.materia.fecha_fin_cursada}
+                        td #{moment(materia.materia.fecha_inicio_cursada.toString()).format('DD-MM-YYYY')}
+                        td #{moment(materia.materia.fecha_fin_cursada.toString()).format('DD-MM-YYYY')}
                         td
                             a.btn.btn-outline-primary.btn-sm(href="/home/verMateria/"+materia.materia.id_materia) Asistir a materia
             if materias.length == 0

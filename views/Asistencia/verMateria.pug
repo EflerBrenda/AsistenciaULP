@@ -1,13 +1,13 @@
 extends ../layoutAlumnos
 block page
     div 
-        div.mt-5 
+        div.mt-3 
             a.btn.btn-outline-secondary.btn-sm(href="/home/verMateriasRegistradas") Volver atrás
             h3.mt-3 Horarios de #{materia.nombre_materia}
-            p Fecha inicio: #{materia.fecha_inicio_cursada}
-            p Fecha finalización: #{materia.fecha_fin_cursada}
+            p Fecha inicio: #{moment(materia.fecha_inicio_cursada).format('DD-MM-YYYY')}
+            p Fecha finalización: #{moment(materia.fecha_fin_cursada).format('DD-MM-YYYY')}
             p Profesores: #{profesores}
-            p.text-danger ATENCIÓN! Registrar asistencia hasta 30 minutos antes de la clase:
+            p.text-danger ATENCIÓN! El registro de la asistencia debe realizarse dentro de los 30 primeros minutos del horario de la clase :
             table(class= "table table-striped")
                 tr 
                     th Dia de cursada

@@ -1,0 +1,45 @@
+extends ../layoutProfesores
+block page
+    script.
+        let tableToExcel = (function() {
+        let uri = 'data:application/vnd.ms-excel;base64,'
+            , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+            , base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) }
+            , format = function(s, c) { return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }) }
+        return function(table, name) {
+            if (!table.nodeType) table = document.getElementById(table)
+            let ctx = {worksheet: name || 'Worksheet', table: table.innerHTML}
+            window.location.href = uri + base64(format(template, ctx))
+        }
+        })()
+    div 
+        div.mt-3
+            a.btn.btn-outline-secondary.btn-sm(href="/home/verMateriasAsignadas") Volver atrás
+            div.mt-3
+                input(class="btn btn-success btn-sm" type="button" value="Exportar a Excel", onclick="tableToExcel('asistencia', 'TABLA')")
+                h3.mt-4 Asistencia #{materia.nombre_materia}
+                p Fecha inicio: #{moment(materia.fecha_inicio_cursada.toString()).format('DD-MM-YYYY')}
+                p Fecha finalización: #{moment(materia.fecha_fin_cursada.toString()).format('DD-MM-YYYY')}
+                div(style={ 'overflow-x': 'auto' })
+                    table(class= "table table-striped" id="asistencia")
+                        if fechasCursadas.length != 0
+                            tr
+                                th Alumno
+                                each fecha in fechasCursadas 
+                                    th #{fecha}
+                            each asistencia in asistencias 
+                                tr 
+                                    td #{asistencia.nombre}
+                                    each a in asistencia.asistencia 
+                                        if(a)
+                                            td.p-1.bg-success.text-white P 
+                                        else 
+                                            td.p-1.bg-danger.text-white A
+                        else 
+                            tr 
+                                th 
+                            tr 
+                                td.text-center No hay horarios asignados para la materia.  
+                   
+
+

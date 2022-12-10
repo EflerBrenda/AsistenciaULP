@@ -15,8 +15,8 @@ block page
                 each materia in materias
                     tr
                         td #{materia.nombre_materia}
-                        td #{materia.fecha_inicio_cursada}
-                        td #{materia.fecha_fin_cursada}
+                        td #{moment(materia.fecha_inicio_cursada).format('DD-MM-YYYY')}
+                        td #{moment(materia.fecha_fin_cursada).format('DD-MM-YYYY')}
                         td
                             a.btn.btn-outline-warning.btn-sm(href="/home/editarMateria/"+materia.id_materia) Modificar materia
                         td

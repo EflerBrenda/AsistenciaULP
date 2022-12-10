@@ -1,0 +1,19 @@
+extends ../layoutCoordinadores
+block page
+    div 
+        div.mt-3
+            a.btn.btn-outline-secondary.btn-sm(href="/home") Volver atrás
+            h3.mt-4 Porcentaje general de materias
+            table(class= "table table-striped")
+                tr 
+                    th Materias
+                    th
+                each materia in materiasAsistencia
+                    tr  
+                        td.p-1 #{materia.nombre} 
+                        if materia.asistencia >= 0 && materia.asistencia <=33
+                            td.p-1.bg-danger.text-center.text-white #{materia.asistencia} %
+                        if materia.asistencia > 33 && materia.asistencia <=66
+                            td.p-1.bg-warning.text-center.text-white #{materia.asistencia} %
+                        if materia.asistencia > 66 && materia.asistencia <=100
+                            td.p-1.bg-success.text-center.text-white #{materia.asistencia} %

@@ -2,9 +2,12 @@ const usuarios = require('../models').usuarios;
 const materias = require('../models').materias;
 const dictadoMateria = require('../models').dictadoMateria;
 const cursadoMateria = require('../models').cursadoMateria;
+const asistencia = require('../models').asistencia;
 const horarios = require('../models').horario;
 const validation = require("../utils/validationMethods");
+const moment = require("moment");
 const { sequelize, Sequelize } = require('../models');
+
 
 exports.verMateriasAsignadas = async function (req, res) {
 
@@ -302,7 +305,68 @@ exports.borrarHorario = async function (req, res) {
     }
 }
 
-exports.consultarAsistenciaVista = async function (req, res) { }
+exports.consultarAsistenciaVista = async function (req, res) {
+    let idMateria = req.params.idMateria;
+
+    let asistenciaData = await asistencia.findAll({
+        where: { id_materia: idMateria },
+        include: { model: usuarios, where: { ver_usuario: 1 }, attributes: ['nombre_usuario', 'apellido_usuario', 'email_usuario'] },
+        attributes: ['id_asistencia', 'id_materia', 'id_usuario', 'fecha_asistencia', 'hora_asistencia',],
+        order: ['fecha_asistencia'],
+    });
+
+    let alumnosCursandoData = await cursadoMateria.findAll({
+        where: { id_materia: idMateria, habilitar_cursada: 1 },
+        include: { model: usuarios, where: { ver_usuario: 1 } },
+    });
+
+    let materiaData = await materias.findOne({ where: { id_materia: idMateria, ver_materia: 1 } });
+    let horariosData = await horarios.findAll({ where: { id_materia: idMateria, ver_horario: 1, clase_activa: 1 } });
+    let fechaInicio = moment(materiaData.fecha_inicio_cursada);
+    let fechaFinCursada = moment(materiaData.fecha_fin_cursada);
+    let fechaActual = moment();
+
+    let fechasCursada = [];
+
+    if (fechaActual.isBefore(fechaFinCursada, 'day')) {
+        fechaFinCursada = fechaActual;
+    }
+
+    let diferencia = fechaFinCursada.diff(fechaInicio, 'days');
+
+
+    for (let i = 0; i <= diferencia; i++) {
+        for (let h = 0; h < horariosData.length; h++) {
+            if (horariosData[h].dia_cursado == fechaInicio.isoWeekday()) {
+                fechasCursada.push(fechaInicio.format('DD-MM-YY'));
+                break;
+            }
+        }
+        fechaInicio = fechaInicio.add(1, 'day');
+    }
+
+    let objetoAsistencia = [];
+
+    for (let i = 0; i < alumnosCursandoData.length; i++) {
+        let objeto = { nombre: alumnosCursandoData[i].usuario.nombre_usuario + ' ' + alumnosCursandoData[i].usuario.apellido_usuario, asistencia: [] };
+        let asistencias = asistenciaData.filter(a => a.id_usuario == alumnosCursandoData[i].usuario.id_usuario);
+        for (let e = 0; e < fechasCursada.length; e++) {
+            let encontrado = false;
+            for (let a = 0; a < asistencias.length; a++) {
+                if (moment(asistencias[a].fecha_asistencia).format('DD-MM-YY') === fechasCursada[e]) {
+                    encontrado = true;
+                    break;
+                }
+            }
+            objeto.asistencia.push(encontrado);
+
+        }
+        objetoAsistencia.push(objeto);
+    }
+
+    res.render('Asistencia/consultarAsistencia', { asistencias: objetoAsistencia, materia: materiaData, alumnosCursando: alumnosCursandoData, fechasCursadas: fechasCursada });
+
+}
 exports.exportarAsistenciaVista = async function (req, res) { }
 exports.exportarAsistencia = async function (req, res) { }
 
