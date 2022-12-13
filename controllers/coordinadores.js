@@ -10,6 +10,7 @@ const cursadoMateria = require('../models').cursadoMateria;
 const asistencia = require('../models').asistencia;
 const horarios = require('../models').horario;
 
+
 //USUARIOS
 
 exports.nuevoUsuario = async function (req, res) {
@@ -408,24 +409,22 @@ exports.profesoresAsignadosVista = async function (req, res) {
     });
     res.render('Materias/verProfesores', { materia: materiaData, profesoresAsignados: materiaProfesorData });
 }
-
 //HORARIOS
 
-exports.verHorariosVista = async function (req, res) { }
-exports.verHorarios = async function (req, res) { }
-
+exports.verHorariosVista = async function (req, res) {
+    let idMateria = req.params.idMateria;
+    let horariosData = await horarios.findAll({
+        where: { id_materia: idMateria, ver_horario: 1 }
+    });
+    let materia = await materias.findOne({
+        where: { id_materia: idMateria }
+    });
+    let dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+    res.render('Horarios/verHorarios', { horarios: horariosData, materia: materia, dias: dias });
+}
 //VISTA GENERAL
 
 exports.vistaGeneralAsistencia = async function (req, res) {
-    /*let asistenciaData = await asistencia.findAll({
-        include: { model: materias, where: { ver_materia: 1 }, attributes: ['nombre_materia'] },
-        attributes: ['id_materia', 'fecha_asistencia', [sequelize.fn('COUNT', sequelize.col('fecha_asistencia')), 'asistencia']],
-        order: ['fecha_asistencia'],
-        group: ['fecha_asistencia']
-    });*/
-    //let asistenciaData= await asistencia.count();
-
-    //console.log(asistenciaData);
     let materiasData = await materias.findAll({ where: { ver_materia: 1 } });
     let horariosData = await horarios.findAll({ where: { ver_horario: 1 } });
     let alumnosCursandoData = await cursadoMateria.findAll({
@@ -442,8 +441,6 @@ exports.vistaGeneralAsistencia = async function (req, res) {
         if (fechaActual.isBefore(fechaFin, 'day')) {
             fechaFin = fechaActual;
         }
-
-        //let diferencia = fechaFinCursada.diff(fechaInicio, 'days');
         let diferencia = fechaFin.diff(fechaInicio, 'days');
         let horariosMateria = horariosData.filter(h => h.id_materia == materiasData[i].id_materia);
         let alumnosCursando = alumnosCursandoData.filter(a => a.id_materia == materiasData[i].id_materia).length;
@@ -480,11 +477,63 @@ exports.vistaGeneralAsistencia = async function (req, res) {
     res.render('Asistencia/semaforoAsistencia', { materiasAsistencia: materiaAsistencia })
 }
 
+exports.verConflictosVista = async function (req, res) {
+    let idRol = req.session.id_rol;
+    let valor;
+    if (idRol == 1) { valor = '../layoutCoordinadores'; }
+    else { valor = '../layoutProfesores'; }
+
+    let horariosData = await horarios.findAll({
+        include: { model: materias, where: { ver_materia: 1 } },
+        where: { ver_horario: 1, clase_activa: 1 }
+    });
+    let cursadoMateriaData = await cursadoMateria.findAll({
+        include: { model: usuarios, where: { ver_usuario: 1 } },
+        where: { habilitar_cursada: 1 }
+    });
+    let objetoHorarios = [];
+    let objeto = { id_materia: '', nombre_materia: '', horario: '', dia: '', id_conflicto: '', nombre_conflicto: '', horario_conflicto: '' }
+    for (let i = 0; i < horariosData.length; i++) {
+        for (let e = 0; e < horariosData.length; e++) {
+            if (horariosData[i].id_horario != horariosData[e].id_horario) {
+                if (horariosData[i].dia_cursado == horariosData[e].dia_cursado) {
+
+                    let horaDesdeI = moment(horariosData[i].hora_desde, 'h:mm');
+                    let horaHastaI = moment(horariosData[i].hora_hasta, 'h:mm');
+                    let horaDesdeE = moment(horariosData[e].hora_desde, 'h:mm');
+                    let horaHastaE = moment(horariosData[e].hora_hasta, 'h:mm');
+
+                    if (horaDesdeI.isBetween(horaDesdeE, horaHastaE) || horaHastaI.isBetween(horaDesdeE, horaHastaE) || horaHastaE.isBetween(horaDesdeI, horaHastaI) || horaDesdeE.isBetween(horaDesdeI, horaHastaI)) {
+
+                        objeto = { id_materia: horariosData[i].materia.id_materia, nombre_materia: horariosData[i].materia.nombre_materia, horario: horariosData[i].hora_desde + '-' + horariosData[i].hora_hasta, dia: horariosData[i].dia_cursado, id_conflicto: horariosData[e].materia.id_materia, nombre_conflicto: horariosData[e].materia.nombre_materia, horario_conflicto: horariosData[e].hora_desde + '-' + horariosData[e].hora_hasta };
 
 
+                        objetoHorarios.push(objeto);
+                    }
+                }
+            }
+        }
+    }
+
+    let usuarioConflicto = [];
+    let objetoConflicto = { nombre_alumno: '', id_materia: '', nombre_materia: '', horario: '', nombre_conflicto: '', horario_conflicto: '', dia: '' }
+    for (let i = 0; i < cursadoMateriaData.length; i++) {
+        for (let x = 0; x < objetoHorarios.length; x++) {
+            if (cursadoMateriaData[i].id_materia == objetoHorarios[x].id_materia) {
+                objetoConflicto = { nombre_alumno: cursadoMateriaData[i].usuario.nombre_usuario + ' ' + cursadoMateriaData[i].usuario.apellido_usuario, id_materia: objetoHorarios[x].id_materia, nombre_materia: objetoHorarios[x].nombre_materia, horario: objetoHorarios[x].horario, nombre_conflicto: objetoHorarios[x].nombre_conflicto, horario_conflicto: objetoHorarios[x].horario_conflicto, dia: objetoHorarios[x].dia };
+                usuarioConflicto.push(objetoConflicto);
+            }
+        }
+    }
+    const usuarioConflictoOrdenado = usuarioConflicto.sort((a, b) => {
+        if (a.nombre_alumno < b.nombre_alumno) { return -1; }
+        if (a.nombre_alumno > b.nombre_alumno) { return 1; }
+        return 0;
+    });
+    res.render('Horarios/verConflictos', { conflictos: usuarioConflictoOrdenado, dias: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"], idRol: idRol });
+}
 
 //METODOS
-
 function mensajeRegistroUsuario(req, res, mensaje) {
     req.flash('mensaje', mensaje);
     res.redirect('/home/nuevoUsuario');

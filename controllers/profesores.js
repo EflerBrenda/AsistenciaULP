@@ -304,7 +304,6 @@ exports.borrarHorario = async function (req, res) {
         res.redirect("/home/verMateriasAsignadas");
     }
 }
-
 exports.consultarAsistenciaVista = async function (req, res) {
     let idMateria = req.params.idMateria;
 
@@ -367,9 +366,6 @@ exports.consultarAsistenciaVista = async function (req, res) {
     res.render('Asistencia/consultarAsistencia', { asistencias: objetoAsistencia, materia: materiaData, alumnosCursando: alumnosCursandoData, fechasCursadas: fechasCursada });
 
 }
-exports.exportarAsistenciaVista = async function (req, res) { }
-exports.exportarAsistencia = async function (req, res) { }
-
 function mensajeAgregarHorario(req, res, mensaje, materia) {
     req.flash('mensaje', mensaje);
     res.redirect('/home/agregarHorario/' + materia);

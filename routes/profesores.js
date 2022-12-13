@@ -19,10 +19,5 @@ router.get('/verMateriasAsignadas', autenticacion.autenticacionProfesor, profeso
 
 //Asistencia
 router.get('/consultarAsistencia/:idMateria', autenticacion.autenticacionProfesor, profesoresController.consultarAsistenciaVista);
-router.get('/exportarAsistencia/:idMateria', autenticacion.autenticacionProfesor, profesoresController.exportarAsistenciaVista);
-
-//Exportar asistencia
-router.post('/exportarAsistencia/:idMateria', autenticacion.autenticacionProfesor, profesoresController.exportarAsistencia);
-
 
 module.exports = router;

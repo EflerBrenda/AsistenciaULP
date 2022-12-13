@@ -1,0 +1,26 @@
+extends ../layoutCoordinadores
+block page
+    div 
+        div.mt-3
+            a.btn.btn-outline-secondary.btn-sm(href="/home") Volver atrás
+            div.mt-3
+                table(class= "table table-striped")
+                    tr 
+                        th Nombre alumno
+                        th Materia cursando
+                        th Día
+                        th Horario
+                        th Materia con conflicto
+                        th Horario
+                        th
+                    each conflicto in conflictos 
+                        tr 
+                            td #{conflicto.nombre_alumno}
+                            td #{conflicto.nombre_materia}
+                            each d, index in dias
+                                if index+1 == conflicto.dia
+                                    td #{d}
+                            td #{conflicto.horario}
+                            td #{conflicto.nombre_conflicto}
+                            td #{conflicto.horario_conflicto}
+            

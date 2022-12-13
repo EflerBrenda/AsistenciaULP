@@ -24,8 +24,11 @@ router.get('/editarMateria/:id', autenticacion.autenticacionCoordinador, coordin
 router.put('/editarMateria/:id', autenticacion.autenticacionCoordinador, coordinadoresController.editarMateria);
 router.get('/profesoresAsignados/:id', autenticacion.autenticacionCoordinador, coordinadoresController.profesoresAsignadosVista);
 
-router.get('/verHorarios/:id', autenticacion.autenticacionCoordinador, coordinadoresController.verHorariosVista);
-router.post('/verHorarios/:id', autenticacion.autenticacionCoordinador, coordinadoresController.verHorarios);
+//Horarios
+router.get('/verHorarios/:idMateria', autenticacion.autenticacionCoordinador, coordinadoresController.verHorariosVista);
+
+//Conflictos
+router.get('/verConflictos', autenticacion.autenticacionCoordinador, coordinadoresController.verConflictosVista);
 
 //Solapa asistencia
 router.get('/vistaGeneralAsistencia', autenticacion.autenticacionCoordinador, coordinadoresController.vistaGeneralAsistencia);

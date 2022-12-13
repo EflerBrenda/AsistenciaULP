@@ -24,6 +24,8 @@ block content
                                     a.dropdown-item(href="/home/verMaterias") Ver materias
                         li.nav-item
                             a.nav-link(href="/home/vistaGeneralAsistencia") Ver asistencia de materias
-                form(action="/logout", method="post")
+                        li.nav-item
+                            a.nav-link(href="/home/verConflictos") Ver conflicto de horarios
+                form.p-1(action="/logout", method="post")
                     input(type="submit", value="Cerrar sesion", class="btn btn-danger btn-sm")
     block page    

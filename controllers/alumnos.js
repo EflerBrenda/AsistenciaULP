@@ -54,7 +54,6 @@ exports.nuevoRegistroMateria = async function (req, res) {
     }
     res.redirect("/home/verMateriasDisponibles");
 }
-
 exports.verMateriasRegistradas = async function (req, res) {
     let idUsuario = req.session.id_usuario;
     let materiaAlumnoData = await cursadoMateria.findAll({
@@ -98,7 +97,6 @@ exports.verMateriaVista = async function (req, res) {
     };
 
 }
-
 exports.nuevaAsistencia = async function (req, res) {
     let idMateria = req.params.idMateria;
     let idHorario = req.params.idHorario;

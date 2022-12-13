@@ -1,0 +1,20 @@
+extends ../layoutCoordinadores
+block page
+    div 
+        div.mt-3
+            a.btn.btn-outline-secondary.btn-sm(href="/home/verMaterias") Volver atrás
+            h3.mt-3 Horarios de #{materia.nombre_materia}
+            table(class= "table table-striped mt-3")
+                tr 
+                    th Dia de cursada
+                    th Hora desde
+                    th Hora hasta
+                each horario in horarios
+                    tr
+                        each d, index in dias
+                            if index+1 == horario.dia_cursado
+                                td #{d}
+                        td #{horario.hora_desde}
+                        td #{horario.hora_hasta}
+            if horarios.length == 0
+                p.text-center No existen horarios asignados.
