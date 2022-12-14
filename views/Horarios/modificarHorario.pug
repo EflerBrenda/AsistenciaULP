@@ -10,25 +10,45 @@ block page
                         div.mb-3
                             Label.form-label Día de la semana:
                             select.form-select(name="dia_cursado")
-                                each d, index in dias
-                                    if index+1 == horario.dia_cursado
-                                        option(value=horario.dia_cursado selected) #{d}
-                                    else
-                                        option(value=index+1) #{d}
+                                if body && body.dia_cursado
+                                    each d, index in dias
+                                        if index+1 == body.dia_cursado
+                                            option(value=body.dia_cursado selected) #{d}
+                                        else
+                                            option(value=index+1) #{d}
+                                else 
+                                    each d, index in dias
+                                        if index+1 == horario.dia_cursado
+                                            option(value=horario.dia_cursado selected) #{d}
+                                        else
+                                            option(value=index+1) #{d}
                         div.mb-3
                             Label.form-label Hora comienzo de clase:
-                            input.form-control(type="time", name="hora_desde" value=horario.hora_desde) 
+                            if body && body.hora_desde
+                                input.form-control(type="time", name="hora_desde" value=body.hora_desde)
+                            else
+                                input.form-control(type="time", name="hora_desde" value=horario.hora_desde) 
                         div.mb-3
                             Label.form-label Hora finalización de clase:
-                            input.form-control(type="time", name="hora_hasta" value=horario.hora_hasta)
+                            if body && body.hora_hasta
+                                input.form-control(type="time", name="hora_hasta" value=body.hora_hasta)
+                            else
+                                input.form-control(type="time", name="hora_hasta" value=horario.hora_hasta)
                         div.mb-3
                             Label.form-label La clase se dicta?:
                             select.form-select(name="clase_activa")
-                                each a, index in activo
-                                    if index+1 == horario.clase_activa
-                                        option(value=index+1 selected) #{a}
-                                    else
-                                        option(value=index+1) #{a}
+                                if body && body.clase_activa
+                                    each a, index in activo
+                                        if index+1 == body.clase_activa
+                                            option(value=index+1 selected) #{a}
+                                        else
+                                            option(value=index+1) #{a}
+                                else
+                                    each a, index in activo
+                                        if index+1 == horario.clase_activa
+                                            option(value=index+1 selected) #{a}
+                                        else
+                                            option(value=index+1) #{a}
                         div.mb-3
                             input.btn.btn-success(type="submit", value="Confirmar")
                     if mensaje && mensaje.length > 0

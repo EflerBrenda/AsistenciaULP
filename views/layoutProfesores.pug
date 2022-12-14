@@ -13,6 +13,8 @@ block content
                             ul.dropdown-menu(aria-labelledby='navbarDropdownMenuLink')
                                 li
                                     a.dropdown-item(href="/home/verMateriasAsignadas") Ver materias asignadas
+                        li.nav-item
+                            a.nav-link(href="/home/verConflictosProfesores") Ver conflicto de horarios
                 form(action="/logout", method="post")
                     input(type="submit", value="Cerrar sesion", class="btn btn-danger btn-sm")
     block page

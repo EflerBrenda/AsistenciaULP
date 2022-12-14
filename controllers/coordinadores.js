@@ -352,18 +352,9 @@ exports.editarMateria = async function (req, res) {
 }
 exports.asignarProfesorVista = async function (req, res) {
     let idProfesor = req.params.id;
-    /*let materiasData = await materias.findAll({
-        atributes: {
-            include: [
-                [sequelize.literal(`(SELECT * FROM dictadomateria WHERE id_usuario=${idProfesor})`), 'dictadoMateria'], { required: false }]
-        },
-        where: { ver_materia: 1, '$dictadoMateria.id_materia$': null },
-    });*/
     let materiasData = await sequelize.query(`SELECT m.id_materia, nombre_materia FROM materias m 
     LEFT JOIN (SELECT * FROM dictadomateria WHERE id_usuario=?) dm ON(m.id_materia=dm.id_materia) 
     WHERE ver_materia=1 AND dm.id_materia IS NULL`, { replacements: [idProfesor], type: QueryTypes.SELECT });
-    console.log(materiasData);
-
     let profesorData = await usuarios.findOne({
         where: { ver_usuario: 1, id_rol: 2, id_usuario: idProfesor }
     });
@@ -491,11 +482,6 @@ exports.vistaGeneralAsistencia = async function (req, res) {
 }
 
 exports.verConflictosVista = async function (req, res) {
-    let idRol = req.session.id_rol;
-    let valor;
-    if (idRol == 1) { valor = '../layoutCoordinadores'; }
-    else { valor = '../layoutProfesores'; }
-
     let horariosData = await horarios.findAll({
         include: { model: materias, where: { ver_materia: 1 } },
         where: { ver_horario: 1, clase_activa: 1 }
@@ -527,7 +513,7 @@ exports.verConflictosVista = async function (req, res) {
             }
         }
     }
-
+    console.log(objetoHorarios);
     let usuarioConflicto = [];
     let objetoConflicto = { nombre_alumno: '', id_materia: '', nombre_materia: '', horario: '', nombre_conflicto: '', horario_conflicto: '', dia: '' }
     for (let i = 0; i < cursadoMateriaData.length; i++) {
@@ -543,7 +529,7 @@ exports.verConflictosVista = async function (req, res) {
         if (a.nombre_alumno > b.nombre_alumno) { return 1; }
         return 0;
     });
-    res.render('Horarios/verConflictos', { conflictos: usuarioConflictoOrdenado, dias: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"], idRol: idRol });
+    res.render('Horarios/verConflictos', { conflictos: usuarioConflictoOrdenado, dias: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"] });
 }
 
 //METODOS

@@ -19,5 +19,6 @@ router.get('/verMateriasAsignadas', autenticacion.autenticacionProfesor, profeso
 
 //Asistencia
 router.get('/consultarAsistencia/:idMateria', autenticacion.autenticacionProfesor, profesoresController.consultarAsistenciaVista);
+router.get('/verConflictosProfesores', autenticacion.autenticacionProfesor, profesoresController.verConflictosVista);
 
 module.exports = router;

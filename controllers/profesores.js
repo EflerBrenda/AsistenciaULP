@@ -7,7 +7,7 @@ const horarios = require('../models').horario;
 const validation = require("../utils/validationMethods");
 const moment = require("moment");
 const { sequelize, Sequelize } = require('../models');
-
+const { QueryTypes } = require('sequelize');
 
 exports.verMateriasAsignadas = async function (req, res) {
 
@@ -104,11 +104,14 @@ exports.gestionHorarioVista = async function (req, res) {
 }
 exports.agregarHorarioVista = async function (req, res) {
     let msj = req.flash("mensaje");
+    let bodyData = req.flash("body");
     let idMateria = req.params.idMateria;
     let idUsuario = req.session.id_usuario;
     let materiasData = await dictadoMateria.findAll({ where: { id_usuario: idUsuario, id_materia: idMateria } });
     if (materiasData != "") {
-        res.render('Horarios/agregarHorario', { mensaje: msj, idMateria: idMateria });
+        let dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+        let activo = ["Sí", "No"];
+        res.render('Horarios/agregarHorario', { mensaje: msj, dias, activo, idMateria: idMateria, body: bodyData[0] });
     }
     else {
         res.redirect("/home/verMateriasAsignadas");
@@ -123,19 +126,19 @@ exports.agregarHorario = async function (req, res) {
     let materiasData = await dictadoMateria.findAll({ where: { id_usuario: idUsuario, id_materia: idMateria } });
     if (materiasData != "") {
         if (!body.dia_cursado || !validation.isNumber(body.dia_cursado)) {
-            return mensajeAgregarHorario(req, res, { mensaje: "El valor día de la semana no puede ser vacio", esError: true }, idMateria);
+            return mensajeAgregarHorario(req, res, { mensaje: "El valor día de la semana no puede ser vacio", esError: true }, idMateria, body);
         }
         if (!body.hora_desde || !validation.isHour(body.hora_desde)) {
-            return mensajeAgregarHorario(req, res, { mensaje: "El campo hora comienzo de clase no puede ser vacio.", esError: true }, idMateria);
+            return mensajeAgregarHorario(req, res, { mensaje: "El campo hora comienzo de clase no puede ser vacio.", esError: true }, idMateria, body);
         }
         if (!body.hora_hasta || !validation.isHour(body.hora_hasta)) {
-            return mensajeAgregarHorario(req, res, { mensaje: "El campo hora finalización de clase no puede ser vacio.", esError: true }, idMateria);
+            return mensajeAgregarHorario(req, res, { mensaje: "El campo hora finalización de clase no puede ser vacio.", esError: true }, idMateria, body);
         }
         if (!validation.isValidHour(body.hora_desde, body.hora_hasta)) {
-            return mensajeAgregarHorario(req, res, { mensaje: "El horario valido es de 9am a 22pm.", esError: true }, idMateria);
+            return mensajeAgregarHorario(req, res, { mensaje: "El horario valido es de 9am a 22pm.", esError: true }, idMateria, body);
         }
         if (!body.clase_activa || !validation.isNumber(body.clase_activa)) {
-            return mensajeAgregarHorario(req, res, { mensaje: "Ingrese valor valido para dictado de clase.", esError: true }, idMateria);
+            return mensajeAgregarHorario(req, res, { mensaje: "Ingrese valor valido para dictado de clase.", esError: true }, idMateria, body);
         }
         let horarioExistente = await horarios.findAll({ where: { id_materia: idMateria, dia_cursado: body.dia_cursado, hora_desde: body.hora_desde, hora_hasta: body.hora_hasta, ver_horario: 1 } });
         if (horarioExistente == "") {
@@ -152,14 +155,14 @@ exports.agregarHorario = async function (req, res) {
                             IDMATERIA: idMateria,
                         }
                     });
-                mensajeAgregarHorario(req, res, { mensaje: "Horario creada exitosamente.", esError: false }, idMateria);
+                mensajeAgregarHorario(req, res, { mensaje: "Horario creada exitosamente.", esError: false }, idMateria, body);
             }
             catch (error) {
                 res.status(400).send(error.message);
             }
         }
         else {
-            return mensajeAgregarHorario(req, res, { mensaje: "Ya existe horario valido para este día.", esError: true }, idMateria);
+            return mensajeAgregarHorario(req, res, { mensaje: "Ya existe horario valido para este día.", esError: true }, idMateria, body);
         }
 
     }
@@ -178,14 +181,9 @@ exports.modificarHorarioVista = async function (req, res) {
             let dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
             let activo = ["Sí", "No"];
             let msj = req.flash("mensaje");
+            let bodyData = req.flash("body");
             if (validation.isNumber(idMateria) && validation.isNumber(idHorario)) {
-                //let horarioData = await horarios.findOne({ where: { ver_horario: 1, id_horario: idHorario } });
-                //if (horarioData != null) {
-                res.render('Horarios/modificarHorario', { mensaje: msj, horario: horarioExiste, idMateria: idMateria, dias: dias, activo: activo });
-                /*}
-                else {
-                    res.redirect("/home/gestionHorario/" + idMateria);
-                }*/
+                res.render('Horarios/modificarHorario', { mensaje: msj, horario: horarioExiste, idMateria: idMateria, dias: dias, activo: activo, body: bodyData[0] });
             }
             else {
                 res.redirect("/home/gestionHorario/" + idMateria);
@@ -210,23 +208,22 @@ exports.modificarHorario = async function (req, res) {
         if (horarioExiste != null) {
             if (validation.isNumber(idMateria) && validation.isNumber(idHorario)) {
                 if (!body.dia_cursado || !validation.isNumber(body.dia_cursado)) {
-                    return mensajeModificarHorario(req, res, { mensaje: "El valor día de la semana no puede ser vacio", esError: true }, idMateria, idHorario);
+                    return mensajeModificarHorario(req, res, { mensaje: "El valor día de la semana no puede ser vacio", esError: true }, idMateria, idHorario, body);
                 }
 
                 if (!body.hora_desde || !validation.isHour(body.hora_desde)) {
-                    return mensajeModificarHorario(req, res, { mensaje: "El campo hora comienzo de clase no puede ser vacio.", esError: true }, idMateria, idHorario);
+                    return mensajeModificarHorario(req, res, { mensaje: "El campo hora comienzo de clase no puede ser vacio.", esError: true }, idMateria, idHorario, body);
                 }
                 if (!body.hora_hasta || !validation.isHour(body.hora_hasta)) {
-                    return mensajeModificarHorario(req, res, { mensaje: "El campo hora finalización de clase no puede ser vacio.", esError: true }, idMateria, idHorario);
+                    return mensajeModificarHorario(req, res, { mensaje: "El campo hora finalización de clase no puede ser vacio.", esError: true }, idMateria, idHorario, body);
                 }
                 if (!validation.isValidHour(body.hora_desde, body.hora_hasta)) {
-                    return mensajeModificarHorario(req, res, { mensaje: "El horario valido es de 9am a 22pm.", esError: true }, idMateria, idHorario);
+                    return mensajeModificarHorario(req, res, { mensaje: "El horario valido es de 9am a 22pm.", esError: true }, idMateria, idHorario, body);
                 }
                 if (!body.clase_activa || !validation.isNumber(body.clase_activa)) {
-                    return mensajeModificarHorario(req, res, { mensaje: "Ingrese valor valido para dictado de clase.", esError: true }, idMateria, idHorario);
+                    return mensajeModificarHorario(req, res, { mensaje: "Ingrese valor valido para dictado de clase.", esError: true }, idMateria, idHorario, body);
                 }
-                //let horarioExistente = await horarios.findAll({ where: { id_materia: idMateria, dia_cursado: body.dia_cursado, hora_desde: body.hora_desde, hora_hasta: body.hora_hasta, ver_horario: 1 } });
-                //if (horarioExistente == "") {
+
                 try {
 
                     await sequelize.query('CALL EDITARHORARIO(:IDHORARIO,:DIA,:HORADESDE,:HORAHASTA,:ACTIVO)',
@@ -239,15 +236,12 @@ exports.modificarHorario = async function (req, res) {
                                 IDHORARIO: idHorario,
                             }
                         });
-                    mensajeModificarHorario(req, res, { mensaje: "Horario editado exitosamente.", esError: false }, idMateria, idHorario);
+                    mensajeModificarHorario(req, res, { mensaje: "Horario editado exitosamente.", esError: false }, idMateria, idHorario, body);
                 }
                 catch (error) {
                     res.status(400).send(error.message);
                 }
-                /*}
-                else {
-                    return mensajeModificarHorario(req, res, { mensaje: "Ya existe horario valido para este día.", esError: true }, idMateria, idHorario);
-                }*/
+
             }
             else {
                 res.redirect("/home/verMateriasAsignadas");
@@ -366,11 +360,83 @@ exports.consultarAsistenciaVista = async function (req, res) {
     res.render('Asistencia/consultarAsistencia', { asistencias: objetoAsistencia, materia: materiaData, alumnosCursando: alumnosCursandoData, fechasCursadas: fechasCursada });
 
 }
-function mensajeAgregarHorario(req, res, mensaje, materia) {
+
+exports.verConflictosVista = async function (req, res) {
+    let idUsuario = req.session.id_usuario;
+    let horariosData = await horarios.findAll({
+        include: { model: materias, where: { ver_materia: 1 } },
+        where: { ver_horario: 1, clase_activa: 1 }
+    });
+    /*let horariosData = await sequelize.query(`SELECT * 
+    FROM horarios h 
+    JOIN materias m ON(h.id_materia=m.id_materia)
+    JOIN dictadomateria dm ON(m.id_materia=dm.id_materia)
+    WHERE ver_horario=1 AND clase_activa=1 AND ver_materia=1 AND id_usuario= ?`, { replacements: [idUsuario], type: QueryTypes.SELECT });
+    */
+    /* let horariosData = await sequelize.query(`SELECT * 
+     FROM horarios h 
+     JOIN materias m ON(h.id_materia=m.id_materia)
+     JOIN dictadomateria dm ON(m.id_materia=dm.id_materia)
+     WHERE ver_horario=1 AND clase_activa=1 AND ver_materia=1 `, { type: QueryTypes.SELECT });
+     console.log(horariosData);
+     let horariosDataProfesor = horariosData.filter(h => h.id_usuario = idUsuario);
+     console.log('--------------------------------------------');
+     console.log(horariosDataProfesor);*/
+
+    let cursadoMateriaData = await cursadoMateria.findAll({
+        include: { model: usuarios, where: { ver_usuario: 1 } },
+        where: { habilitar_cursada: 1 }
+    });
+    let objetoHorarios = [];
+    let objeto = { id_materia: '', nombre_materia: '', horario: '', dia: '', id_conflicto: '', nombre_conflicto: '', horario_conflicto: '' }
+    for (let i = 0; i < horariosData.length; i++) {
+        for (let e = 0; e < horariosData.length; e++) {
+            if (horariosData[i].id_horario != horariosData[e].id_horario) {
+                if (horariosData[i].dia_cursado == horariosData[e].dia_cursado) {
+
+                    let horaDesdeI = moment(horariosData[i].hora_desde, 'h:mm');
+                    let horaHastaI = moment(horariosData[i].hora_hasta, 'h:mm');
+                    let horaDesdeE = moment(horariosData[e].hora_desde, 'h:mm');
+                    let horaHastaE = moment(horariosData[e].hora_hasta, 'h:mm');
+
+                    if (horaDesdeI.isBetween(horaDesdeE, horaHastaE) || horaHastaI.isBetween(horaDesdeE, horaHastaE) || horaHastaE.isBetween(horaDesdeI, horaHastaI) || horaDesdeE.isBetween(horaDesdeI, horaHastaI)) {
+
+                        objeto = { id_materia: horariosData[i].materia.id_materia, nombre_materia: horariosData[i].materia.nombre_materia, horario: horariosData[i].hora_desde + '-' + horariosData[i].hora_hasta, dia: horariosData[i].dia_cursado, id_conflicto: horariosData[e].materia.id_materia, nombre_conflicto: horariosData[e].materia.nombre_materia, horario_conflicto: horariosData[e].hora_desde + '-' + horariosData[e].hora_hasta };
+
+
+                        objetoHorarios.push(objeto);
+                    }
+                }
+            }
+        }
+    }
+
+    let usuarioConflicto = [];
+    let objetoConflicto = { nombre_alumno: '', id_materia: '', nombre_materia: '', horario: '', nombre_conflicto: '', horario_conflicto: '', dia: '' }
+    for (let i = 0; i < cursadoMateriaData.length; i++) {
+        for (let x = 0; x < objetoHorarios.length; x++) {
+            if (cursadoMateriaData[i].id_materia == objetoHorarios[x].id_materia) {
+                objetoConflicto = { nombre_alumno: cursadoMateriaData[i].usuario.nombre_usuario + ' ' + cursadoMateriaData[i].usuario.apellido_usuario, id_materia: objetoHorarios[x].id_materia, nombre_materia: objetoHorarios[x].nombre_materia, horario: objetoHorarios[x].horario, nombre_conflicto: objetoHorarios[x].nombre_conflicto, horario_conflicto: objetoHorarios[x].horario_conflicto, dia: objetoHorarios[x].dia };
+                usuarioConflicto.push(objetoConflicto);
+            }
+        }
+    }
+    const usuarioConflictoOrdenado = usuarioConflicto.sort((a, b) => {
+        if (a.nombre_alumno < b.nombre_alumno) { return -1; }
+        if (a.nombre_alumno > b.nombre_alumno) { return 1; }
+        return 0;
+    });
+    res.render('Horarios/verConflictosProfesores', { conflictos: usuarioConflictoOrdenado, dias: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"] });
+
+}
+
+function mensajeAgregarHorario(req, res, mensaje, materia, body) {
     req.flash('mensaje', mensaje);
+    req.flash('body', body);
     res.redirect('/home/agregarHorario/' + materia);
 }
-function mensajeModificarHorario(req, res, mensaje, materia, horario) {
+function mensajeModificarHorario(req, res, mensaje, materia, horario, body) {
     req.flash('mensaje', mensaje);
+    req.flash('body', body);
     res.redirect('/home/modificarHorario/' + materia + "/" + horario);
 }
