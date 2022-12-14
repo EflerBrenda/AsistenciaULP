@@ -8,13 +8,22 @@ block page
                     form(action="/home/nuevaMateria", method="post")
                         div.mb-3
                             Label.form-label Nombre:
-                            input.form-control(type="text", name="nombre")
+                            if body && body.nombre
+                                input.form-control(type="text" name="nombre" value=body.nombre)
+                            else
+                                input.form-control(type="text", name="nombre")
                         div.mb-3
                             Label.form-label Inicio cursada:
-                            input.form-control(type="date", name="fecha_inicio", value=fecha, min=fecha) 
+                            if body && body.fecha_inicio
+                                input.form-control(type="date", name="fecha_inicio", value=body.fecha_inicio, min=body.fecha_inicio)
+                            else
+                                input.form-control(type="date", name="fecha_inicio", value=fecha, min=fecha) 
                         div.mb-3
                             Label.form-label Fin cursada:
-                            input.form-control(type="date", name="fecha_fin", value=fecha, min=fecha)
+                            if body && body.fecha_fin
+                                input.form-control(type="date", name="fecha_fin", value=body.fecha_fin, min=body.fecha_fin)
+                            else
+                                input.form-control(type="date", name="fecha_fin", value=fecha, min=fecha)
                         div.mb-3
                             input.btn.btn-success(type="submit", value="Confirmar")
                     if mensaje && mensaje.length > 0

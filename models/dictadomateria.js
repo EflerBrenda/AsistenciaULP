@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
         key: "id_usuario",
       }
     },
-    ver_dictadomateria: DataTypes.BOOLEAN
+
   }, {
     sequelize,
     modelName: 'dictadoMateria',

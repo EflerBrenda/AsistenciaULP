@@ -29,16 +29,6 @@ function autenticacionAlumno(req, res, next) {
         res.redirect("/home");
     }
 }
-/*async function gestionMateriaProfesor(req, res, next) {
 
-    let materiasData = await dictadoMateria.findAll({ where: { id_usuario: req.session.id_usuario, ver_dictadomateria: 1 } });
-    if (materiasData != null) {
-        next();
-    }
-    else {
-        res.redirect("/verMateriasAsignadas");
-    };
-
-}*/
 
 module.exports = { autenticacionLogin, autenticacionProfesor, autenticacionCoordinador, autenticacionAlumno };

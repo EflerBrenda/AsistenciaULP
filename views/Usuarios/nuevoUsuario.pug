@@ -8,24 +8,39 @@ block page
                     form(action="/home/nuevoUsuario", method="post")
                         div.mb-3
                             Label.form-label Nombres:
-                            input.form-control(type="text", name="nombre")
+                            if body && body.nombre
+                                input.form-control(type="text", name="nombre" value=body.nombre )
+                            else 
+                                input.form-control(type="text", name="nombre")
                         div.mb-3
                             Label.form-label Apellidos:
-                            input.form-control(type="text", name="apellido") 
+                            if body && body.apellido
+                                input.form-control(type="text", name="apellido" value=body.apellido )
+                            else 
+                                input.form-control(type="text", name="apellido" )
                         div.mb-3
                             Label.form-label Email:
-                            input.form-control(type="email", name="email", placeholder="name@example.com")
+                            if body && body.email
+                                input.form-control(type="email", name="email", placeholder="name@example.com" value=body.email)
+                            else 
+                                input.form-control(type="email", name="email", placeholder="name@example.com" )
                         div.mb-3
                             Label.form-label Seleccione el tipo de usuario:
                             select.form-select(name="id_rol")
                                 each rol in roles
-                                    option(value=rol.id_rol) #{rol.descripcion_rol}
+                                    option(value=rol.id_rol selected=body && body.id_rol==rol.id_rol) #{rol.descripcion_rol}
                         div.mb-3
                             Label.form-label Contraseña:
-                            input.form-control(type="password", name="password1")
+                            if body && body.password1
+                                input.form-control(type="password", name="password1" value=body.password1)
+                            else 
+                                input.form-control(type="password", name="password1")
                         div.mb-3
                             Label.form-label Confirme contraseña:
-                            input.form-control(type="password", name="password2")
+                            if body && body.password2
+                                input.form-control(type="password", name="password2" value=body.password2)
+                            else 
+                                input.form-control(type="password", name="password2")
                         div.mb-3
                             input.btn.btn-success(type="submit", value="Confirmar")
                     if mensaje && mensaje.length > 0

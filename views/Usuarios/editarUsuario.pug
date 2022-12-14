@@ -8,18 +8,30 @@ block page
                     form(action="/home/editarUsuario/"+usuario.id_usuario+"?_method=put", method="post")
                         div.mb-3
                             Label.form-label Nombres:
-                            input.form-control(type="text", name="nombre", value= usuario.nombre_usuario)
+                            if body && body.nombre
+                                input.form-control(type="text", name="nombre", value=body.nombre) 
+                            else
+                                input.form-control(type="text", name="nombre", value= usuario.nombre_usuario)
                         div.mb-3
                             Label.form-label Apellidos:
-                            input.form-control(type="text", name="apellido" value= usuario.apellido_usuario) 
+                            if body && body.apellido
+                                input.form-control(type="text", name="apellido" value=body.apellido)
+                            else
+                                input.form-control(type="text", name="apellido" value= usuario.apellido_usuario) 
                         div.mb-3
                             Label.form-label Email:
-                            input.form-control(type="email", name="email", placeholder="name@example.com" value= usuario.email_usuario)
+                            if body && body.email
+                                input.form-control(type="email", name="email", placeholder="name@example.com" value=body.email)
+                            else
+                                input.form-control(type="email", name="email", placeholder="name@example.com" value= usuario.email_usuario)
                         div.mb-3
                             Label.form-label Seleccione el tipo de usuario:
                             select.form-select(name="id_rol")
                                 each rol in roles
-                                    option(value=rol.id_rol, selected= rol.id_rol == usuario.id_rol) #{rol.descripcion_rol}
+                                    if body && body.id_rol
+                                        option(value=body.id_rol selected=body.id_rol==rol.id_rol) #{rol.descripcion_rol}
+                                    else
+                                        option(value=rol.id_rol, selected= rol.id_rol == usuario.id_rol) #{rol.descripcion_rol}
                         div.mb-3
                             input.btn.btn-success(type="submit", value="Confirmar")
                     if mensaje && mensaje.length > 0

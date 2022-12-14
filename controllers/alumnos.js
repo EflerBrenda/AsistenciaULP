@@ -75,7 +75,7 @@ exports.verMateriaVista = async function (req, res) {
             where: { id_materia: idMateria, ver_materia: 1 }
         });
         let profesoresData = await dictadoMateria.findAll({
-            where: { id_materia: idMateria, ver_dictadoMateria: 1 },
+            where: { id_materia: idMateria },
             include: { model: usuarios, where: { id_rol: 2, ver_usuario: 1 } }
         });
         let profesores = "";
