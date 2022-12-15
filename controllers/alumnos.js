@@ -16,8 +16,8 @@ exports.verMateriasDisponibles = async function (req, res) {
     });*/
     let materiasData = await sequelize.query(`SELECT m.id_materia,m.nombre_materia,m.fecha_inicio_cursada,m.fecha_fin_cursada 
     from materias m
-    LEFT JOIN (SELECT * FROM cursadomateria WHERE id_usuario=15) cm ON(m.id_materia=cm.id_materia)
-    WHERE cm.id_cursadoMateria IS NULL AND ver_materia=1`, { type: QueryTypes.SELECT });
+    LEFT JOIN (SELECT * FROM cursadomateria WHERE id_usuario=?) cm ON(m.id_materia=cm.id_materia)
+    WHERE cm.id_cursadoMateria IS NULL AND ver_materia=1`, { type: QueryTypes.SELECT, replacements: [idUsuario] });
     console.log(materiasData);
     let materiasCursandoData = await cursadoMateria.findAll({
         where: { id_usuario: idUsuario, habilitar_cursada: 1 },
