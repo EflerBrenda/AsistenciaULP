@@ -22,11 +22,11 @@ exports.validarAlumnosVista = async function (req, res) {
     let idMateria = req.params.idMateria;
     let materiaAlumnoRegistroData = await cursadoMateria.findAll({
         where: { id_materia: idMateria, habilitar_cursada: 0 },
-        include: { model: usuarios }
+        include: { model: usuarios, where: { ver_usuario: 1 } }
     });
     let materiaAlumnoRegistradosData = await cursadoMateria.findAll({
         where: { id_materia: idMateria, habilitar_cursada: 1 },
-        include: { model: usuarios }
+        include: { model: usuarios, where: { ver_usuario: 1 } }
     });
     res.render('Materias/verRegistroAlumnos', { alumnosARegistrar: materiaAlumnoRegistroData, alumnosRegistrados: materiaAlumnoRegistradosData });
 }
@@ -360,28 +360,23 @@ exports.consultarAsistenciaVista = async function (req, res) {
     res.render('Asistencia/consultarAsistencia', { asistencias: objetoAsistencia, materia: materiaData, alumnosCursando: alumnosCursandoData, fechasCursadas: fechasCursada });
 
 }
-
 exports.verConflictosVista = async function (req, res) {
     let idUsuario = req.session.id_usuario;
-    let horariosData = await horarios.findAll({
+    /*let horariosData = await horarios.findAll({
         include: { model: materias, where: { ver_materia: 1 } },
         where: { ver_horario: 1, clase_activa: 1 }
-    });
-    /*let horariosData = await sequelize.query(`SELECT * 
+    });*/
+    let horariosData = await sequelize.query(`SELECT * 
     FROM horarios h 
     JOIN materias m ON(h.id_materia=m.id_materia)
     JOIN dictadomateria dm ON(m.id_materia=dm.id_materia)
     WHERE ver_horario=1 AND clase_activa=1 AND ver_materia=1 AND id_usuario= ?`, { replacements: [idUsuario], type: QueryTypes.SELECT });
-    */
-    /* let horariosData = await sequelize.query(`SELECT * 
+
+    let horariosGeneralData = await sequelize.query(`SELECT * 
      FROM horarios h 
      JOIN materias m ON(h.id_materia=m.id_materia)
      JOIN dictadomateria dm ON(m.id_materia=dm.id_materia)
      WHERE ver_horario=1 AND clase_activa=1 AND ver_materia=1 `, { type: QueryTypes.SELECT });
-     console.log(horariosData);
-     let horariosDataProfesor = horariosData.filter(h => h.id_usuario = idUsuario);
-     console.log('--------------------------------------------');
-     console.log(horariosDataProfesor);*/
 
     let cursadoMateriaData = await cursadoMateria.findAll({
         include: { model: usuarios, where: { ver_usuario: 1 } },
@@ -390,18 +385,18 @@ exports.verConflictosVista = async function (req, res) {
     let objetoHorarios = [];
     let objeto = { id_materia: '', nombre_materia: '', horario: '', dia: '', id_conflicto: '', nombre_conflicto: '', horario_conflicto: '' }
     for (let i = 0; i < horariosData.length; i++) {
-        for (let e = 0; e < horariosData.length; e++) {
-            if (horariosData[i].id_horario != horariosData[e].id_horario) {
-                if (horariosData[i].dia_cursado == horariosData[e].dia_cursado) {
+        for (let e = 0; e < horariosGeneralData.length; e++) {
+            if (horariosData[i].id_horario != horariosGeneralData[e].id_horario) {
+                if (horariosData[i].dia_cursado == horariosGeneralData[e].dia_cursado) {
 
                     let horaDesdeI = moment(horariosData[i].hora_desde, 'h:mm');
                     let horaHastaI = moment(horariosData[i].hora_hasta, 'h:mm');
-                    let horaDesdeE = moment(horariosData[e].hora_desde, 'h:mm');
-                    let horaHastaE = moment(horariosData[e].hora_hasta, 'h:mm');
+                    let horaDesdeE = moment(horariosGeneralData[e].hora_desde, 'h:mm');
+                    let horaHastaE = moment(horariosGeneralData[e].hora_hasta, 'h:mm');
 
                     if (horaDesdeI.isBetween(horaDesdeE, horaHastaE) || horaHastaI.isBetween(horaDesdeE, horaHastaE) || horaHastaE.isBetween(horaDesdeI, horaHastaI) || horaDesdeE.isBetween(horaDesdeI, horaHastaI)) {
 
-                        objeto = { id_materia: horariosData[i].materia.id_materia, nombre_materia: horariosData[i].materia.nombre_materia, horario: horariosData[i].hora_desde + '-' + horariosData[i].hora_hasta, dia: horariosData[i].dia_cursado, id_conflicto: horariosData[e].materia.id_materia, nombre_conflicto: horariosData[e].materia.nombre_materia, horario_conflicto: horariosData[e].hora_desde + '-' + horariosData[e].hora_hasta };
+                        objeto = { id_materia: horariosData[i].id_materia, nombre_materia: horariosData[i].nombre_materia, horario: horariosData[i].hora_desde + '-' + horariosData[i].hora_hasta, dia: horariosData[i].dia_cursado, id_conflicto: horariosGeneralData[e].id_materia, nombre_conflicto: horariosGeneralData[e].nombre_materia, horario_conflicto: horariosGeneralData[e].hora_desde + '-' + horariosGeneralData[e].hora_hasta };
 
 
                         objetoHorarios.push(objeto);

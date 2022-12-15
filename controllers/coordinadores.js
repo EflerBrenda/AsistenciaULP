@@ -482,10 +482,11 @@ exports.vistaGeneralAsistencia = async function (req, res) {
 }
 
 exports.verConflictosVista = async function (req, res) {
-    let horariosData = await horarios.findAll({
-        include: { model: materias, where: { ver_materia: 1 } },
-        where: { ver_horario: 1, clase_activa: 1 }
-    });
+    let horariosData = await sequelize.query(`SELECT * 
+     FROM horarios h 
+     JOIN materias m ON(h.id_materia=m.id_materia)
+     JOIN dictadomateria dm ON(m.id_materia=dm.id_materia)
+     WHERE ver_horario=1 AND clase_activa=1 AND ver_materia=1 `, { type: QueryTypes.SELECT });
     let cursadoMateriaData = await cursadoMateria.findAll({
         include: { model: usuarios, where: { ver_usuario: 1 } },
         where: { habilitar_cursada: 1 }
@@ -504,16 +505,13 @@ exports.verConflictosVista = async function (req, res) {
 
                     if (horaDesdeI.isBetween(horaDesdeE, horaHastaE) || horaHastaI.isBetween(horaDesdeE, horaHastaE) || horaHastaE.isBetween(horaDesdeI, horaHastaI) || horaDesdeE.isBetween(horaDesdeI, horaHastaI)) {
 
-                        objeto = { id_materia: horariosData[i].materia.id_materia, nombre_materia: horariosData[i].materia.nombre_materia, horario: horariosData[i].hora_desde + '-' + horariosData[i].hora_hasta, dia: horariosData[i].dia_cursado, id_conflicto: horariosData[e].materia.id_materia, nombre_conflicto: horariosData[e].materia.nombre_materia, horario_conflicto: horariosData[e].hora_desde + '-' + horariosData[e].hora_hasta };
-
-
+                        objeto = { id_materia: horariosData[i].id_materia, nombre_materia: horariosData[i].nombre_materia, horario: horariosData[i].hora_desde + '-' + horariosData[i].hora_hasta, dia: horariosData[i].dia_cursado, id_conflicto: horariosData[e].id_materia, nombre_conflicto: horariosData[e].nombre_materia, horario_conflicto: horariosData[e].hora_desde + '-' + horariosData[e].hora_hasta };
                         objetoHorarios.push(objeto);
                     }
                 }
             }
         }
     }
-    console.log(objetoHorarios);
     let usuarioConflicto = [];
     let objetoConflicto = { nombre_alumno: '', id_materia: '', nombre_materia: '', horario: '', nombre_conflicto: '', horario_conflicto: '', dia: '' }
     for (let i = 0; i < cursadoMateriaData.length; i++) {
