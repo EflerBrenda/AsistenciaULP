@@ -2,6 +2,7 @@ const { sequelize, Sequelize } = require('../models');
 const cursadoMateria = require('../models').cursadoMateria;
 const dictadoMateria = require('../models').dictadoMateria;
 const horarios = require('../models').horario;
+const asistencia = require('../models').asistencia;
 const materias = require('../models').materias;
 const usuarios = require('../models').usuarios;
 const validation = require("../utils/validationMethods");
@@ -92,8 +93,15 @@ exports.verMateriaVista = async function (req, res) {
         let activo = ["Sí", "No"];
         let diaActual = moment().isoWeekday();
         let h = new Date();
+        let fechaActual = h.toISOString().split('T')[0];
         let horaActual = moment(h.toLocaleTimeString(), "h:mm");
-        res.render('Asistencia/verMateria', { horarios: horariosData, materia: materiaData, dias: dias, activo: activo, profesores: profesores, diaActual: diaActual, horaActual: horaActual });
+        let asistenciaData = await asistencia.findOne({
+            where: { id_materia: idMateria, id_usuario: idUsuario, fecha_asistencia: fechaActual },
+            attributes: ['id_asistencia'],
+        });
+        let yaAsistio = asistenciaData != null;
+
+        res.render('Asistencia/verMateria', { horarios: horariosData, materia: materiaData, dias: dias, activo: activo, profesores: profesores, diaActual: diaActual, horaActual: horaActual, yaAsistio });
     }
     else {
         res.redirect("/home/verMateriasRegistradas");
@@ -117,7 +125,7 @@ exports.nuevaAsistencia = async function (req, res) {
             let duration = moment.duration(horaActual.diff(horaCursado));
             let minutosPasados = duration.asMinutes();
             if (minutosPasados <= 30 && minutosPasados >= 0) {
-                let hora = horaActual.hour() + ':' + horaActual.minutes();
+                let hora = moment(h.toLocaleTimeString(), "HH:mm").format("HH:mm");
                 try {
                     await sequelize.query('CALL CREARASISTENCIA(:IDUSUARIO,:IDMATERIA,:HORAASISTENCIA)',
                         {

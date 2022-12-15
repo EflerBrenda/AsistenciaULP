@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         key: "id_usuario",
       }
     },
-    fecha_asistencia: DataTypes.DATE,
+    fecha_asistencia: DataTypes.DATEONLY,
     hora_asistencia: DataTypes.STRING,
   }, {
     sequelize,

@@ -23,10 +23,13 @@ block page
                         td #{horario.hora_hasta}
                         td 
                             if horario.dia_cursado == diaActual
-                                if moment.duration(horaActual.diff(moment(horario.hora_desde, "h:mm"))).asMinutes() <= 30 && moment.duration(horaActual.diff(moment(horario.hora_desde, "h:mm"))).asMinutes()>=0
-                                    form(action="/home/nuevaAsistencia/"+horario.id_horario+"/"+materia.id_materia, method="post") 
-                                        input.btn.btn-outline-success.btn-sm(type="submit", value="Asistir")
+                                if !yaAsistio
+                                    if moment.duration(horaActual.diff(moment(horario.hora_desde, "h:mm"))).asMinutes() <= 30 && moment.duration(horaActual.diff(moment(horario.hora_desde, "h:mm"))).asMinutes()>=0
+                                        form(action="/home/nuevaAsistencia/"+horario.id_horario+"/"+materia.id_materia, method="post") 
+                                            input.btn.btn-outline-success.btn-sm(type="submit", value="Asistir")
+                                    else 
+                                        span.badge.text-bg-danger Fuera de horario.
                                 else 
-                                    span.badge.text-bg-danger Fuera de horario.
+                                    span.badge.text-bg-success Se registro asistencia.
             if horarios.length == 0
                 p.text-center No existen horarios asignados.
