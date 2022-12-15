@@ -6,13 +6,19 @@ const materias = require('../models').materias;
 const usuarios = require('../models').usuarios;
 const validation = require("../utils/validationMethods");
 const moment = require("moment");
+const { QueryTypes } = require('sequelize');
 
 exports.verMateriasDisponibles = async function (req, res) {
     let idUsuario = req.session.id_usuario;
-    let materiasData = await cursadoMateria.findAll({
+    /*let materiasData = await cursadoMateria.findAll({
         include: { model: materias, right: true, required: false },
         where: { id_cursadomateria: null, '$materia.ver_materia$': true },
-    });
+    });*/
+    let materiasData = await sequelize.query(`SELECT m.id_materia,m.nombre_materia,m.fecha_inicio_cursada,m.fecha_fin_cursada 
+    from materias m
+    LEFT JOIN (SELECT * FROM cursadomateria WHERE id_usuario=15) cm ON(m.id_materia=cm.id_materia)
+    WHERE cm.id_cursadoMateria IS NULL AND ver_materia=1`, { type: QueryTypes.SELECT });
+    console.log(materiasData);
     let materiasCursandoData = await cursadoMateria.findAll({
         where: { id_usuario: idUsuario, habilitar_cursada: 1 },
         include: { model: materias, where: { ver_materia: 1 } },

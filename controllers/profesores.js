@@ -155,7 +155,7 @@ exports.agregarHorario = async function (req, res) {
                             IDMATERIA: idMateria,
                         }
                     });
-                mensajeAgregarHorario(req, res, { mensaje: "Horario creada exitosamente.", esError: false }, idMateria, body);
+                mensajeAgregarHorario(req, res, { mensaje: "Horario creada exitosamente.", esError: false }, idMateria, null);
             }
             catch (error) {
                 res.status(400).send(error.message);
@@ -236,7 +236,7 @@ exports.modificarHorario = async function (req, res) {
                                 IDHORARIO: idHorario,
                             }
                         });
-                    mensajeModificarHorario(req, res, { mensaje: "Horario editado exitosamente.", esError: false }, idMateria, idHorario, body);
+                    mensajeModificarHorario(req, res, { mensaje: "Horario editado exitosamente.", esError: false }, idMateria, idHorario, null);
                 }
                 catch (error) {
                     res.status(400).send(error.message);

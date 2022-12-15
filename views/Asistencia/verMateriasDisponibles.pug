@@ -12,11 +12,11 @@ block page
                     th 
                 each materia in materias
                     tr
-                        td #{materia.materia.nombre_materia}
-                        td #{moment(materia.materia.fecha_inicio_cursada.toString()).format('DD-MM-YYYY')}
-                        td #{moment(materia.materia.fecha_fin_cursada.toString()).format('DD-MM-YYYY')}
+                        td #{materia.nombre_materia}
+                        td #{moment(materia.fecha_inicio_cursada.toString()).format('DD-MM-YYYY')}
+                        td #{moment(materia.fecha_fin_cursada.toString()).format('DD-MM-YYYY')}
                         td
-                            form(action="/home/nuevoRegistroMateria/"+materia.materia.id_materia, method="post") 
+                            form(action="/home/nuevoRegistroMateria/"+materia.id_materia, method="post") 
                                 input.btn.btn-outline-success.btn-sm(type="submit", value="Inscribirme a la materia") 
             if materias.length == 0
                 p.text-center No existen materias registradas.

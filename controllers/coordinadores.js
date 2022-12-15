@@ -51,7 +51,7 @@ exports.nuevoUsuario = async function (req, res) {
                                 id_rol: body.id_rol,
                             }
                         });
-                    mensajeRegistroUsuario(req, res, { mensaje: "El usuario fue creado exitosamente.", esError: false }, body);
+                    mensajeRegistroUsuario(req, res, { mensaje: "El usuario fue creado exitosamente.", esError: false }, null);
                 }
                 else {
                     mensajeRegistroUsuario(req, res, { mensaje: "Los campos password no coinciden.", esError: true }, body);
@@ -154,7 +154,7 @@ exports.editarUsuario = async function (req, res) {
                             id_rol: body.id_rol,
                         }
                     });
-                mensajeEditaUsuario(req, res, { mensaje: "El usuario fue editado exitosamente.", esError: false }, idModificar, body);
+                mensajeEditaUsuario(req, res, { mensaje: "El usuario fue editado exitosamente.", esError: false }, idModificar, null);
 
             }
             catch (error) {
@@ -251,7 +251,7 @@ exports.nuevaMateria = async function (req, res) {
                             FINCURSADA: body.fecha_fin,
                         }
                     });
-                mensajeNuevaMateria(req, res, { mensaje: "Materia creada exitosamente.", esError: false }, body);
+                mensajeNuevaMateria(req, res, { mensaje: "Materia creada exitosamente.", esError: false }, null);
             }
             catch (error) {
                 res.status(400).send(error.message);
@@ -337,7 +337,7 @@ exports.editarMateria = async function (req, res) {
                             FINCURSADA: body.fecha_fin,
                         }
                     });
-                mensajeEditaMateria(req, res, { mensaje: "Materia fue editada exitosamente.", esError: false }, idModificar, body);
+                mensajeEditaMateria(req, res, { mensaje: "Materia fue editada exitosamente.", esError: false }, idModificar, null);
 
             }
             catch (error) {

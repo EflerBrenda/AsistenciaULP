@@ -21,9 +21,9 @@ block page
                         div.mb-3
                             Label.form-label Fin cursada:
                             if body && body.fecha_fin
-                                input.form-control(type="date", name="fecha_fin", value=body.fecha_fin, min=body.fecha_fin)
+                                input.form-control(type="date", name="fecha_fin", value=body.fecha_fin)
                             else
-                                input.form-control(type="date", name="fecha_fin", value=fecha, min=fecha)
+                                input.form-control(type="date", name="fecha_fin", value=fecha)
                         div.mb-3
                             input.btn.btn-success(type="submit", value="Confirmar")
                     if mensaje && mensaje.length > 0
