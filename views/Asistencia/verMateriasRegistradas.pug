@@ -16,6 +16,9 @@ block page
                         td #{moment(materia.materia.fecha_inicio_cursada.toString()).format('DD-MM-YYYY')}
                         td #{moment(materia.materia.fecha_fin_cursada.toString()).format('DD-MM-YYYY')}
                         td
-                            a.btn.btn-outline-primary.btn-sm(href="/home/verMateria/"+materia.materia.id_materia) Asistir a materia
+                            if moment().isBetween(moment(materia.materia.fecha_inicio_cursada),moment(materia.materia.fecha_fin_cursada),'day','[]')
+                                a.btn.btn-outline-primary.btn-sm(href="/home/verMateria/"+materia.materia.id_materia) Asistir a materia
+                            else 
+                                span.badge.text-bg-danger La materia terminó.
             if materias.length == 0
                 p.text-center No existen materias registradas.

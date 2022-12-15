@@ -16,10 +16,16 @@ block page
                         td #{materia.materia.nombre_materia}
                         td #{moment(materia.materia.fecha_inicio_cursada).format('DD-MM-YYYY')}
                         td #{moment(materia.materia.fecha_fin_cursada).format('DD-MM-YYYY')}
-                        td
-                            a.btn.btn-outline-warning.btn-sm(href="/home/gestionHorario/"+materia.id_materia) Gestion horarios
-                        td
-                            a.btn.btn-outline-primary.btn-sm(href="/home/validarAlumnos/"+materia.id_materia) Validar alumnos
+                        if moment().isBetween(moment(materia.materia.fecha_inicio_cursada),moment(materia.materia.fecha_fin_cursada),'day','[]')
+                            td
+                                a.btn.btn-outline-warning.btn-sm(href="/home/gestionHorario/"+materia.id_materia) Gestion horarios
+                            td
+                                a.btn.btn-outline-primary.btn-sm(href="/home/validarAlumnos/"+materia.id_materia) Validar alumnos
+                        else 
+                            td
+                                span.badge.text-bg-danger La materia terminó.
+                            td
+                                span.badge.text-bg-danger La materia terminó.
                         td
                             a.btn.btn-outline-secondary.btn-sm(href="/home/consultarAsistencia/"+materia.id_materia) Consultar asistencia
             if materias.length == 0
