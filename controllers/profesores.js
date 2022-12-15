@@ -394,7 +394,7 @@ exports.verConflictosVista = async function (req, res) {
                     let horaDesdeE = moment(horariosGeneralData[e].hora_desde, 'h:mm');
                     let horaHastaE = moment(horariosGeneralData[e].hora_hasta, 'h:mm');
 
-                    if (horaDesdeI.isBetween(horaDesdeE, horaHastaE, "[]") || horaHastaI.isBetween(horaDesdeE, horaHastaE, "[]") || horaHastaE.isBetween(horaDesdeI, horaHastaI, "[]") || horaDesdeE.isBetween(horaDesdeI, horaHastaI, "[]")) {
+                    if (horaDesdeI.isBetween(horaDesdeE, horaHastaE, 'hours', "[]") || horaHastaI.isBetween(horaDesdeE, horaHastaE, 'hours', "[]") || horaHastaE.isBetween(horaDesdeI, horaHastaI, 'hours', "[]") || horaDesdeE.isBetween(horaDesdeI, horaHastaI, 'hours', "[]")) {
 
                         objeto = { id_materia: horariosData[i].id_materia, nombre_materia: horariosData[i].nombre_materia, horario: horariosData[i].hora_desde + '-' + horariosData[i].hora_hasta, dia: horariosData[i].dia_cursado, id_conflicto: horariosGeneralData[e].id_materia, nombre_conflicto: horariosGeneralData[e].nombre_materia, horario_conflicto: horariosGeneralData[e].hora_desde + '-' + horariosGeneralData[e].hora_hasta };
 
